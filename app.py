@@ -9,7 +9,7 @@ import zipfile
 import uuid
 import tarfile
 import platform
-import GPUtil
+# import GPUtil  # Commented out - not compatible with Python 3.13
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from datetime import timedelta
 from werkzeug.utils import secure_filename
@@ -198,21 +198,32 @@ def get_system_stats():
     
     disk = psutil.disk_usage('/')
     
-    # GPU stats if available
-    gpu_stats = []
-    try:
-        gpus = GPUtil.getGPUs()
-        for gpu in gpus:
-            gpu_stats.append({
-                'name': gpu.name,
-                'load': gpu.load * 100,
-                'memory_used': gpu.memoryUsed,
-                'memory_total': gpu.memoryTotal,
-                'memory_util': gpu.memoryUtil * 100,
-                'temperature': gpu.temperature
-            })
-    except:
-        gpu_stats = []
+    return {
+        'cpu': {
+            'percent': cpu_percent,
+            'per_core': cpu_per_core,
+            'frequency': cpu_freq.current if cpu_freq else 0,
+            'cores': psutil.cpu_count(),
+            'threads': psutil.cpu_count(logical=True)
+        },
+        'memory': {
+            'total': memory.total / (1024**3),
+            'available': memory.available / (1024**3),
+            'used': memory.used / (1024**3),
+            'percent': memory.percent,
+            'swap_used': swap.used / (1024**3),
+            'swap_total': swap.total / (1024**3),
+            'swap_percent': swap.percent
+        },
+        'disk': {
+            'total': disk.total / (1024**3),
+            'used': disk.used / (1024**3),
+            'free': disk.free / (1024**3),
+            'percent': disk.percent
+        },
+        'uptime': time.time() - psutil.boot_time(),
+        'processes': len(psutil.pids())
+    }
     
     return {
         'cpu': {
