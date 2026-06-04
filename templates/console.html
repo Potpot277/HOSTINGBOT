@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Console & Files | {{ server_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+
+
+    <style>
+        :root {
+            --background: #121212;
+            --sidebar-bg: #1A1A1A;
+            --card-bg: #1E1E1E;
+            --text-primary: #EAEAEA;
+            --text-secondary: #A0A0A0;
+            --accent: #3A86FF;
+            --border-color: #333333;
+        }
+
+        body {
+            height: 100vh;
+            margin: 0;
+            background-color: var(--background);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 20px 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-brand i { font-size: 24px; color: var(--accent); }
+        .sidebar-brand h4 { margin: 0; font-weight: 600; }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-secondary);
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: linear-gradient(90deg, rgba(58, 134, 255, 0.1), transparent);
+            color: var(--text-primary);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        .sidebar-footer .powered-by-text {
+            font-size: 12px;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .sidebar-footer a {
+            padding: 10px 25px;
+        }
+
+        /* --- Main Content --- */
+        .content {
+            margin-left: 240px;
+            padding: 30px;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .content h4 { font-weight: 600; }
+        .content .text-muted { color: var(--text-secondary) !important; }
+
+        /* --- Stats & Console --- */
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stat-card h5 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-card h5 i {
+            color: var(--accent);
+        }
+
+        .stat-card p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .stat-card .progress {
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .stat-card .progress-bar {
+            background-color: var(--accent);
+            border-radius: 4px;
+        }
+        
+        #console {
+            background: #0D0D0D;
+            color: #dcdcdc;
+            height: 50vh;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: 'Fira Code', monospace;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        /* --- File Manager & Split Section UI (Updated) --- */
+        .file-box, .themed-link-box {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .file-box:hover, .themed-link-box:hover { background-color: #252525; }
+        .file-label { flex-grow: 1; gap: 10px; display: flex; align-items: center; cursor: pointer; }
+        .file-label i { color: var(--accent); }
+        .file-actions {
+            font-size: 1.1rem;
+        }
+        .file-actions .btn-sm {
+            padding: 0.25rem 0.5rem;
+        }
+        .dropdown-menu.dropdown-menu-dark {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+        .dropdown-menu.dropdown-menu-dark li > a.dropdown-item {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        .dropdown-menu.dropdown-menu-dark li > a.dropdown-item:hover {
+            background-color: #2f3235;
+        }
+        .dropdown-menu.dropdown-menu-dark li > .dropdown-divider {
+            border-top-color: var(--border-color);
+        }
+        /* New style for consistency in the split section */
+        .themed-link-box {
+            display: block;
+        }
+        .themed-link-box i { color: var(--accent); margin-right: 10px; }
+        .themed-link-box:hover {
+            color: var(--text-primary);
+            background-color: #252525;
+        }
+        
+        /* Themed Button Style for Split Servers */
+        .themed-button {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            padding: 10px 15px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .themed-button:hover {
+            background-color: #252525;
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        
+        #drop-zone {
+            border-style: dashed !important;
+        }
+        #drop-zone.drag-over {
+            background-color: rgba(58, 134, 255, 0.1);
+            border-color: var(--accent) !important;
+        }
+
+        /* --- Mobile Navigation --- */
+        .mobile-nav {
+            display: none; /* Hidden by default */
+        }
+        
+        @media (min-width: 769px) {
+            #stats {
+                order: -1; /* Move stats to the top on desktop */
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            body {
+                display: block;
+                overflow: visible;
+            }
+            .sidebar {
+                display: none;
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+                padding-bottom: 100px;
+                height: auto;
+                overflow-y: visible;
+            }
+            
+            #stats {
+                margin-top: 1rem;
+            }
+            #console {
+                margin-bottom: 0;
+            }
+            
+            .mobile-nav {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 70px;
+                background: var(--sidebar-bg);
+                border-top: 1px solid var(--border-color);
+                z-index: 1001;
+            }
+            .mobile-nav a {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-decoration: none;
+                color: var(--text-secondary);
+                font-size: 12px;
+                gap: 4px;
+                cursor: pointer;
+            }
+            .mobile-nav a i {
+                font-size: 20px;
+            }
+            .mobile-nav a.active {
+                color: var(--accent);
+            }
+            
+            .stats-row {
+                flex-direction: column;
+            }
+            
+            .stat-card {
+                min-width: 100%;
+            }
+        }
+        /* Style for the CodeMirror editor container */
+        .CodeMirror {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            height: calc(100vh - 200px); /* Adjust height to fill space */
+            min-height: 400px;
+            font-family: 'Fira Code', monospace;
+            background-color: var(--card-bg);
+        }
+        
+        /* Flexbox layout for file manager */
+        .file-manager-layout {
+            display: flex;
+            gap: 20px;
+        }
+
+        .file-manager-main {
+            flex-grow: 1;
+        }
+
+        .file-manager-sidebar {
+            flex-shrink: 0;
+            width: 300px; /* Adjust as needed */
+        }
+
+        @media (max-width: 992px) {
+            .file-manager-layout {
+                flex-direction: column;
+            }
+            .file-manager-sidebar {
+                width: 100%;
+            }
+        }
+
+        /* New styles for drag-and-drop overlay */
+        .content.blur {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+        }
+        #upload-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+        #upload-overlay.visible {
+            display: flex;
+            opacity: 1;
+        }
+        .overlay-dropzone {
+            width: 80%;
+            max-width: 600px;
+            padding: 40px;
+            text-align: center;
+            border: 4px dashed var(--text-secondary);
+            border-radius: 15px;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+        .overlay-dropzone.drag-over {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        /* Toast Container */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2001;
+        }
+        .toast {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .toast-header {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .toast-body {
+            color: var(--text-secondary);
+        }
+        .toast-success {
+            border-left: 3px solid #28a745;
+        }
+        .toast-danger {
+            border-left: 3px solid #dc3545;
+        }
+        .toast-info {
+            border-left: 3px solid #17a2b8;
+        }
+
+        #file-preview-modal-body {
+            height: 70vh;
+            overflow-y: auto;
+        }
+        #file-preview-modal-body img, #file-preview-modal-body iframe, #file-preview-modal-body pre {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* New styles for the split section UI */
+        .split-resource-item {
+            background-color: #252525;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .split-resource-item i {
+            color: var(--accent);
+        }
+        .split-resource-label {
+            font-weight: 500;
+        }
+        .split-resource-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .split-resource-action .btn {
+            background-color: #2f3235;
+            border-color: #444;
+            color: #fff;
+        }
+        .split-resource-action .btn:hover {
+            background-color: #3a3d40;
+            border-color: var(--accent);
+        }
+        .split-edit-resource-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+        }
+        .split-edit-resource-item label {
+            flex-shrink: 0;
+            width: 100px;
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) {
+            .split-edit-resource-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .split-edit-resource-item label {
+                width: auto;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+
+</head>
+<body>
+
+<div id="upload-overlay">
+    <div class="overlay-dropzone" id="overlay-dropzone">
+        <i class="bi bi-cloud-arrow-up-fill me-2"></i>
+        <span>Drop your files here to upload</span>
+        <p class="mt-2" style="font-size: 1rem; color: var(--text-secondary);"><small>All files will be uploaded to the current directory.</small></p>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <i class="bi bi-terminal-fill"></i>
+        <h4>Antrax COSNOLE</h4>
+    </div>
+    <a href="#" id="console-tab" class="active"><i class="bi bi-display"></i> <span>Console</span></a>
+    <a href="#" id="files-tab"><i class="bi bi-folder-fill"></i> <span>Files</span></a>
+    {% if splitter_enabled %}
+    <a href="#" id="split-tab"><i class="bi bi-layout-split"></i> <span>Split</span></a>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}"><i class="bi bi-grid-1x2-fill"></i> <span>Dashboard</span></a>
+    
+    <div class="sidebar-footer">
+        <p class="powered-by-text"><small>Powered By Antrax Hosting</small></p>
+        <a href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> <span>Logout</span></a>
+    </div>
+</div>
+
+<nav class="mobile-nav">
+    <a id="mobile-console-tab" class="active"><i class="bi bi-display"></i> Console</a>
+    <a id="mobile-files-tab"><i class="bi bi-folder-fill"></i> Files</a>
+    {% if splitter_enabled %}
+    <a id="mobile-split-tab"><i class="bi bi-layout-split"></i> Split</a>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+</nav>
+
+<div class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div id="console-section" class="tab-pane">
+        <h4>{{ server_name }} <small class="text-muted"> (Owner: {{ owner }})</small></h4>
+        <div class="console-layout">
+            <div class="row g-2 my-3 console-buttons">
+                <form method="POST" class="col-6 col-sm-auto"><button name="start" class="btn btn-success w-100"><i class="bi bi-play-fill"></i> Start</button></form>
+                <form method="POST" class="col-6 col-sm-auto"><button name="restart" class="btn btn-warning w-100"><i class="bi bi-arrow-clockwise"></i> Restart</button></form>
+                <form method="POST" class="col-6 col-sm-auto"><button name="stop" class="btn btn-danger w-100"><i class="bi bi-stop-fill"></i> Stop</button></form>
+                <div class="col-6 col-sm-auto"><button type="button" onclick="installRequirements()" class="btn btn-info w-100"><i class="bi bi-box-arrow-down"></i> Install</button></div>
+            </div>
+            <div id="console">
+                {% for line in console_lines %}<span>{{ line }}</span><br>{% endfor %}
+            </div>
+
+            <div class="stats-row mt-4">
+                <div class="stat-card">
+                    <h5><i class="bi bi-cpu-fill"></i> CPU Usage</h5>
+                    <p id="cpu-console">0% / 0%</p>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" id="cpu-progress" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h5><i class="bi bi-memory"></i> RAM Usage</h5>
+                    <p id="ram-console">0 / 0 MB</p>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" id="ram-progress" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h5><i class="bi bi-device-hdd-fill"></i> Disk Usage</h5>
+                    <p id="disk-console">0 / 0 MB</p>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" id="disk-progress" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h5><i class="bi bi-clock-fill"></i> Uptime</h5>
+                    <p id="uptime-console">0</p>
+                    <small class="text-muted">since start</small>
+                </div>
+                <div class="stat-card">
+                    <h5><i class="bi bi-broadcast-pin"></i> Network I/O</h5>
+                    <p><span id="network-in-metric">0 B/s</span> / <span id="network-out-metric">0 B/s</span></p>
+                    <small class="text-muted">In / Out</small>
+                </div>
+                <div class="stat-card">
+                    <h5><i class="bi bi-hdd-network"></i> Disk I/O</h5>
+                    <p><span id="disk-read-metric">0 B/s</span> / <span id="disk-write-metric">0 B/s</span></p>
+                    <small class="text-muted">Read / Write</small>
+                </div>
+                <div class="stat-card">
+                    <h5><i class="bi bi-cpu"></i> Avg CPU Load (1 min)</h5>
+                    <p id="avg-cpu-load-metric">0.00</p>
+                    <small class="text-muted">Over 1 minute</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="files-section" class="tab-pane" style="display:none;">
+        <h4>File Manager</h4>
+        <p class="text-muted" id="current-path-display">Current Path: /{{ path }}</p>
+        <div id="back-button-container"></div>
+        
+        <div class="d-flex flex-column flex-md-row align-items-stretch gap-2 mb-4">
+            <div class="d-flex flex-row flex-grow-1 flex-md-grow-0 gap-2">
+                <div class="btn-group flex-grow-1">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-plus-lg"></i> New
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createFileModal">New File</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createFolderModal">New Folder</a></li>
+                    </ul>
+                </div>
+                <form id="upload-file-form" class="d-inline-block flex-grow-1">
+                    <input type="file" name="files[]" id="file-input" class="d-none" multiple>
+                    <button type="button" class="btn btn-success w-100" onclick="document.getElementById('file-input').click()"><i class="bi bi-upload"></i> Upload</button>
+                </form>
+            </div>
+            <div class="flex-grow-1">
+                <input type="text" class="form-control bg-dark text-white border-secondary h-100" id="file-search-input" placeholder="Search files...">
+            </div>
+        </div>
+
+        <div id="upload-progress-container" class="mb-3" style="display: none;">
+            <div class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%">0%</div>
+            </div>
+            <small id="upload-status-text" class="text-muted"></small>
+        </div>
+
+        <form id="bulk-action-form" class="mb-3" style="display: none;">
+            <button type="button" onclick="handleBulkAction('archive')" class="btn btn-primary btn-sm"><i class="bi bi-archive-fill"></i> Archive Selected</button>
+            <button type="button" onclick="handleBulkAction('delete_multiple')" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i> Delete Selected</button>
+        </form>
+
+        <div id="file-list-container">
+            </div>
+    </div>
+    
+    <div id="split-section" class="tab-pane" style="display:none;">
+        <h4>Split Server <small class="text-muted"> ({{ server_name }})</small></h4>
+        <div id="stats-split" class="mb-4 d-flex gap-2 flex-wrap" style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px;">
+            <span><strong>CPU:</strong> <span id="cpu-split">{{ server.cpu }}%</span></span>
+            <span><strong>RAM:</strong> <span id="ram-split">{{ server.ram }} MB</span></span>
+            <span><strong>Disk:</strong> <span id="disk-split">{{ server.disk }} MB</span></span>
+        </div>
+        
+        <a href="#" class="themed-link-box d-flex align-items-center mb-4" data-bs-toggle="modal" data-bs-target="#splitServerModal">
+            <div class="file-label"><i class="bi bi-plus-lg"></i> Create Split Server</div>
+        </a>
+        
+        <div id="split-servers-container">
+                </div>
+        
+        <div class="modal fade" id="splitServerModal" tabindex="-1" aria-labelledby="splitServerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title" id="splitServerModalLabel">Split Server Resources</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="POST">
+                        <div class="modal-body">
+                            <p class="text-secondary">Divide the resources of '{{ server_name }}' to create a new server. A new empty directory will be created for the new server.</p>
+                            
+                            <div class="mb-3">
+                                <label for="new_server_name" class="form-label">New Server Name</label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" id="new_server_name" name="new_server_name" required>
+                            </div>
+
+                            <hr style="color: var(--border-color);">
+
+                            <div class="row">
+                                <div class="col-4"><strong>Resource</strong></div>
+                                <div class="col-4 text-center"><strong>New Server</strong></div>
+                                <div class="col-4 text-center"><strong>Remaining</strong></div>
+                            </div>
+
+                            <div class="row mt-2 align-items-center">
+                                <div class="col-4"><i class="bi bi-memory"></i> RAM (MB)</div>
+                                <div class="col-4">
+                                    <input type="number" class="form-control bg-dark text-white border-secondary" id="new_server_ram" name="new_server_ram" value="0" min="1" max="{{ server.ram|int - 1 }}" oninput="updateRemaining()">
+                                </div>
+                                <div class="col-4 text-center">
+                                    <span id="remaining_ram">{{ server.ram }}</span> MB
+                                </div>
+                            </div>
+
+                            <div class="row mt-2 align-items-center">
+                                <div class="col-4"><i class="bi bi-cpu-fill"></i> CPU (%)</div>
+                                <div class="col-4">
+                                    <input type="number" class="form-control bg-dark text-white border-secondary" id="new_server_cpu" name="new_server_cpu" value="0" min="1" max="{{ server.cpu|int - 1 }}" oninput="updateRemaining()">
+                                </div>
+                                <div class="col-4 text-center">
+                                    <span id="remaining_cpu">{{ server.cpu }}</span> %
+                                </div>
+                            </div>
+
+                            <div class="row mt-2 align-items-center">
+                                <div class="col-4"><i class="bi bi-device-hdd-fill"></i> Disk (MB)</div>
+                                <div class="col-4">
+                                    <input type="number" class="form-control bg-dark text-white border-secondary" id="new_server_disk" name="new_server_disk" value="0" min="1" max="{{ server.disk|int - 1 }}" oninput="updateRemaining()">
+                                </div>
+                                <div class="col-4 text-center">
+                                    <span id="remaining_disk">{{ server.disk }}</span> MB
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer border-secondary">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" name="split_server" class="btn btn-primary">Create Split Server</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="manageSplitServerModal" tabindex="-1" aria-labelledby="manageSplitServerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title" id="manageSplitServerModalLabel">Manage Split Server</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="manage-server-name">
+                        <p class="text-secondary" id="manage-server-info"></p>
+                        
+                        <div class="split-edit-resource-item">
+                            <label for="edit_server_ram" class="form-label d-flex align-items-center gap-2">
+                                <i class="bi bi-memory"></i>RAM (MB)
+                            </label>
+                            <input type="number" id="edit_server_ram" class="form-control bg-dark text-white border-secondary" min="1">
+                        </div>
+
+                        <div class="split-edit-resource-item">
+                            <label for="edit_server_cpu" class="form-label d-flex align-items-center gap-2">
+                                <i class="bi bi-cpu-fill"></i>CPU (%)
+                            </label>
+                            <input type="number" id="edit_server_cpu" class="form-control bg-dark text-white border-secondary" min="1">
+                        </div>
+                        
+                        <div class="split-edit-resource-item">
+                            <label for="edit_server_disk" class="form-label d-flex align-items-center gap-2">
+                                <i class="bi bi-device-hdd-fill"></i>Disk (MB)
+                            </label>
+                            <input type="number" id="edit_server_disk" class="form-control bg-dark text-white border-secondary" min="1">
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between border-secondary">
+                        <button type="button" class="btn btn-danger" id="delete-split-server-btn">Delete Server</button>
+                        <div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="save-split-changes-btn">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editor-section" class="tab-pane" style="display:none;">
+        <h4>Edit File: <span id="editing-filename" class="text-muted"></span></h4>
+        <div class="d-flex gap-2 mb-3">
+            <button class="btn btn-success" onclick="saveFile()"><i class="bi bi-save"></i> Save Changes</button>
+            <button class="btn btn-secondary" onclick="closeEditor()"><i class="bi bi-x-circle"></i> Cancel</button>
+        </div>
+        <textarea id="file-editor" class="form-control bg-dark text-white border-secondary"></textarea>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary"><h5 class="modal-title">Confirm Deletion</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><p>Are you sure you want to delete <strong id="item-to-delete-name"></strong>? This action cannot be undone.</p></div>
+            <div class="modal-footer border-secondary"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmUnarchiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary"><h5 class="modal-title">Confirm Unarchive</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><p>Are you sure you want to unarchive <strong id="item-to-unarchive-name"></strong>? This may overwrite existing files.</p></div>
+            <div class="modal-footer border-secondary"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-primary" id="confirm-unarchive-btn">Unarchive</button></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmInstallModal" tabindex="-1" aria-aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary"><h5 class="modal-title">Confirm Install</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><p>Do you want to install dependencies from `requirements.txt`?</p></div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-info" onclick="confirmInstall()" data-bs-dismiss="modal">Install</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="createFileModal" tabindex="-1" aria-labelledby="createFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="createFileModalLabel">Create New File</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-file-form">
+                    <div class="mb-3">
+                        <label for="new-file-name" class="form-label">File Name</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="new-file-name" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="create-file-btn">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="createFolderModalLabel">Create New Folder</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-folder-form">
+                    <div class="mb-3">
+                        <label for="new-folder-name" class="form-label">Folder Name</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="new-folder-name" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="create-folder-btn">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="renameModalLabel">Rename</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rename-old-name">
+                <div class="mb-3">
+                    <label for="rename-new-name" class="form-label">New Name</label>
+                    <input type="text" class="form-control bg-dark text-white border-secondary" id="rename-new-name" required>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="rename-btn">Rename</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="moveModal" tabindex="-1" aria-labelledby="moveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="moveModalLabel">Move Item</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="move-old-path">
+                <input type="hidden" id="move-item-name">
+                <input type="hidden" id="move-source-path">
+                <p>Move <strong id="item-to-move-name"></strong> to:</p>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb" id="move-breadcrumb"></ol>
+                </nav>
+                <div id="move-folder-list" class="list-group">
+                    </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-move-btn" disabled>Move Here</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="fileDetailsModal" tabindex="-1" aria-labelledby="fileDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="fileDetailsModalLabel">File Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="details-item-name" class="text-primary"></h6>
+                <p class="text-secondary">File Path: <span id="details-item-path"></span></p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
+                        Size: <span id="details-item-size"></span>
+                    </li>
+                    <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
+                        Last Modified: <span id="details-item-modified"></span>
+                    </li>
+                    <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
+                        Created: <span id="details-item-created"></span>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteSplitServerModal" tabindex="-1" aria-labelledby="confirmDeleteSplitServerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="confirmDeleteSplitServerModalLabel">Confirm Server Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the server '<strong id="server-to-delete-name"></strong>'? This will also delete all of its child servers and return all resources to the parent.</p>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-split-server-btn">Delete Server</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="filePreviewModal" tabindex="-1" aria-labelledby="filePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="filePreviewModalLabel">Preview: <span id="preview-filename"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="file-preview-modal-body">
+                </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/shell/shell.min.js"></script>
+<script>
+    // Tab system
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(tab => tab.style.display = 'none');
+        document.getElementById(tabId).style.display = 'block';
+        document.querySelectorAll('.sidebar a, .mobile-nav a').forEach(link => link.classList.remove('active'));
+        
+        const desktopTab = document.querySelector(`.sidebar a[id="${tabId}-tab"]`);
+        const mobileTab = document.querySelector(`.mobile-nav a[id="mobile-${tabId}-tab"]`);
+        if (desktopTab) desktopTab.classList.add('active');
+        if (mobileTab) mobileTab.classList.add('active');
+        if (tabId === 'files-section') {
+            listFiles('{{ path }}');
+        }
+    }
+    
+    document.getElementById('console-tab').addEventListener('click', (e) => { e.preventDefault(); showTab('console-section'); });
+    document.getElementById('files-tab').addEventListener('click', (e) => { e.preventDefault(); showTab('files-section'); });
+    document.getElementById('split-tab')?.addEventListener('click', (e) => { e.preventDefault(); showTab('split-section'); listSplitServers(); });
+
+    document.getElementById('mobile-console-tab').addEventListener('click', (e) => { e.preventDefault(); showTab('console-section'); });
+    document.getElementById('mobile-files-tab').addEventListener('click', (e) => { e.preventDefault(); showTab('files-section'); });
+    document.getElementById('mobile-split-tab')?.addEventListener('click', (e) => { e.preventDefault(); showTab('split-section'); listSplitServers(); });
+    
+    // Initial tab
+    showTab('console-section');
+
+    // Console auto-scroll
+    const consoleLog = document.getElementById('console');
+    function scrollToBottom() {
+        consoleLog.scrollTop = consoleLog.scrollHeight;
+    }
+
+    // Live Console & Stats
+    let statsInterval = null;
+
+    function updateStats() {
+        fetch('/server_stats/{{ owner }}/{{ server_name }}')
+            .then(response => response.json())
+            .then(data => {
+                // --- UPDATED CPU DISPLAY ---
+                const currentUsage = parseFloat(data.cpu).toFixed(1);
+                const limit = parseInt(data.cpu_limit);
+                document.getElementById('cpu-console').textContent = `${currentUsage}% / ${limit}%`;
+                // ---------------------------
+
+                document.getElementById('ram-console').textContent = `${data.ram_used} / ${data.ram_limit}`;
+                document.getElementById('disk-console').textContent = `${data.disk_used} / ${data.disk_limit}`;
+                document.getElementById('uptime-console').textContent = data.uptime;
+                document.getElementById('network-in-metric').textContent = data.network_in;
+                document.getElementById('network-out-metric').textContent = data.network_out;
+                document.getElementById('disk-read-metric').textContent = data.disk_read;
+                document.getElementById('disk-write-metric').textContent = data.disk_write;
+                document.getElementById('avg-cpu-load-metric').textContent = data.avg_cpu_load;
+
+                // For the progress bar, use the current usage relative to the limit
+                const cpuProgressPercentage = (data.cpu / data.cpu_limit) * 100;
+                document.getElementById('cpu-progress').style.width = `${Math.min(100, cpuProgressPercentage)}%`;
+                
+                // Check for potential division by zero
+                const ram_used_float = parseFloat(data.ram_used);
+                const ram_limit_float = parseFloat(data.ram_limit);
+                const disk_used_float = parseFloat(data.disk_used);
+                const disk_limit_float = parseFloat(data.disk_limit);
+                
+                const ram_percent = (ram_limit_float > 0) ? (ram_used_float / ram_limit_float) * 100 : 0;
+                const disk_percent = (disk_limit_float > 0) ? (disk_used_float / disk_limit_float) * 100 : 0;
+
+                document.getElementById('ram-progress').style.width = `${ram_percent}%`;
+                document.getElementById('disk-progress').style.width = `${disk_percent}%`;
+                
+            });
+    }
+
+    // Start stats polling on page load
+    statsInterval = setInterval(updateStats, 3000);
+    updateStats();
+
+    // Attach event listener for the stop button
+    document.querySelector('form button[name="stop"]').addEventListener('click', (e) => {
+        // This will be handled by the form submission, but we can clear the console here
+        // for an immediate visual change.
+        consoleLog.innerHTML = '';
+        clearInterval(statsInterval);
+    });
+    
+    // Install Requirements
+    const confirmInstallModal = new bootstrap.Modal(document.getElementById('confirmInstallModal'));
+    function installRequirements() {
+        confirmInstallModal.show();
+    }
+    
+    function confirmInstall() {
+        fetch('/console/{{ owner }}/{{ server_name }}/install', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('info', data.message);
+                } else {
+                    showToast('danger', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error initiating installation:', error);
+                showToast('danger', 'An error occurred while initiating installation.');
+            });
+    }
+
+    // File Manager
+    let currentPath = '{{ path }}';
+    let allFiles = [];
+    let allDirs = [];
+    
+    const fileSearchInput = document.getElementById('file-search-input');
+    fileSearchInput.addEventListener('keyup', filterFiles);
+
+    function filterFiles() {
+        const searchTerm = fileSearchInput.value.toLowerCase();
+        const fileListContainer = document.getElementById('file-list-container');
+        fileListContainer.innerHTML = '';
+
+        const filteredDirs = allDirs.filter(dir => dir.toLowerCase().includes(searchTerm));
+        const filteredFiles = allFiles.filter(file => file.toLowerCase().includes(searchTerm));
+        
+        // Re-render filtered directories
+        filteredDirs.forEach(dir => {
+            const div = document.createElement('div');
+            div.className = 'file-box';
+            div.innerHTML = `
+                <input type="checkbox" class="form-check-input me-3 file-checkbox" value="${dir}">
+                <span class="file-label" data-path="${currentPath}" data-item-name="${dir}"><i class="bi bi-folder-fill"></i> ${dir}</span>
+                <div class="file-actions ms-auto dropstart">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item move-btn" href="#" data-path="${currentPath}" data-item-name="${dir}"><i class="bi bi-box-arrow-in-right me-2"></i> Move</a></li>
+                        <li><a class="dropdown-item rename-btn" href="#" data-path="${currentPath}" data-item-name="${dir}"><i class="bi bi-pencil-fill me-2"></i> Rename</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger delete-btn" href="#" data-path="${currentPath}" data-item-name="${dir}"><i class="bi bi-trash-fill me-2"></i> Delete</a></li>
+                    </ul>
+                </div>
+            `;
+            const fileLabel = div.querySelector('.file-label');
+            fileLabel.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const newPath = [currentPath, dir].filter(Boolean).join('/');
+                listFiles(newPath);
+            });
+            div.querySelector('input[type="checkbox"]').addEventListener('click', (e) => e.stopPropagation());
+            fileListContainer.appendChild(div);
+        });
+        
+        // Re-render filtered files
+        filteredFiles.forEach(file => {
+            const extension = file.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(extension);
+            const isCode = ['py', 'js', 'html', 'css', 'sh', 'txt', 'json', 'md', 'xml'].includes(extension);
+            const isPdf = extension === 'pdf';
+
+            let actionButton = '';
+            if (isCode) {
+                actionButton = `<a class="dropdown-item edit-file-btn" href="#" data-path="${currentPath}" data-filename="${file}"><i class="bi bi-code-square me-2"></i> Edit</a>`;
+            } else if (isImage || isPdf) {
+                actionButton = `<a class="dropdown-item preview-file-btn" href="#" data-path="${currentPath}" data-filename="${file}"><i class="bi bi-eye-fill me-2"></i> Preview</a>`;
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'file-box';
+            div.innerHTML = `
+                <input type="checkbox" class="form-check-input me-3 file-checkbox" value="${file}">
+                <span class="file-label file-name" data-path="${currentPath}" data-filename="${file}" data-item-name="${file}" data-filetype="${isCode ? 'code' : (isImage ? 'image' : (isPdf ? 'pdf' : 'other'))}">
+                    <i class="bi bi-${getIconForFile(file)}"></i> ${file}
+                </span>
+                <div class="file-actions ms-auto dropstart">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item move-btn" href="#" data-path="${currentPath}" data-item-name="${file}"><i class="bi bi-box-arrow-in-right me-2"></i> Move</a></li>
+                        ${actionButton ? `<li>${actionButton}</li>` : ''}
+                        <li><a class="dropdown-item rename-btn" href="#" data-path="${currentPath}" data-item-name="${file}"><i class="bi bi-pencil-fill me-2"></i> Rename</a></li>
+                        <li><a class="dropdown-item download-btn" href="/console/{{ owner }}/{{ server_name }}/download?path=${currentPath}&filename=${file}" download><i class="bi bi-download me-2"></i> Download</a></li>
+                        ${file.endsWith('.zip') || file.endsWith('.tar') || file.endsWith('.tar.gz') || file.endsWith('.tgz') ? `<li><a class="dropdown-item unarchive-btn" href="#" data-path="${currentPath}" data-filename="${file}"><i class="bi bi-file-earmark-zip-fill me-2"></i> Unarchive</a></li>` : ''}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger delete-btn" href="#" data-path="${currentPath}" data-item-name="${file}"><i class="bi bi-trash-fill me-2"></i> Delete</a></li>
+                    </ul>
+                </div>
+            `;
+            
+            // Re-attach listeners to the elements in the new list.
+            const fileLabel = div.querySelector('.file-label');
+            fileLabel.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Check if the click was on a file that has an action associated with it on click.
+                const fileType = e.currentTarget.dataset.filetype;
+                if (fileType === 'code') {
+                    openEditor(e);
+                } else if (fileType === 'image' || fileType === 'pdf') {
+                    openPreviewModal(e);
+                } else {
+                    // For other file types, show file details (like folders)
+                    getFileDetails(e);
+                }
+            });
+            
+            div.querySelector('input[type="checkbox"]').addEventListener('click', (e) => e.stopPropagation());
+            fileListContainer.appendChild(div);
+        });
+        
+        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', confirmDeleteItem));
+        document.querySelectorAll('.rename-btn').forEach(btn => btn.addEventListener('click', openRenameModal));
+        document.querySelectorAll('.unarchive-btn').forEach(btn => btn.addEventListener('click', confirmUnarchiveItem));
+        document.querySelectorAll('.edit-file-btn').forEach(btn => btn.addEventListener('click', openEditor));
+        document.querySelectorAll('.preview-file-btn').forEach(btn => btn.addEventListener('click', openPreviewModal));
+        document.querySelectorAll('.move-btn').forEach(btn => btn.addEventListener('click', openMoveModal));
+        
+        document.querySelectorAll('.file-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkActionVisibility);
+        });
+        updateBulkActionVisibility(); 
+    }
+    
+    // Function to get file details (used for file label clicks on non-editor/preview files)
+    function getFileDetails(event) {
+        const itemElement = event.target.closest('.file-label');
+        const path = itemElement.dataset.path;
+        const itemName = itemElement.dataset.itemName;
+        
+        fetch(`/api/get_file_stats/{{ owner }}/{{ server_name }}?path=${encodeURIComponent(path)}&item_name=${encodeURIComponent(itemName)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('details-item-name').textContent = itemName;
+                    document.getElementById('details-item-path').textContent = `/${path}`;
+                    document.getElementById('details-item-size').textContent = data.size;
+                    document.getElementById('details-item-modified').textContent = data.modified;
+                    document.getElementById('details-item-created').textContent = data.created;
+                    fileDetailsModal.show();
+                } else {
+                    showToast('danger', `Failed to get details: ${data.error}`);
+                }
+            });
+    }
+
+
+    function getIconForFile(filename) {
+        const extension = filename.split('.').pop().toLowerCase();
+        const iconMap = {
+            'py': 'filetype-py',
+            'js': 'filetype-js',
+            'html': 'filetype-html',
+            'css': 'filetype-css',
+            'json': 'filetype-json',
+            'md': 'filetype-md',
+            'xml': 'filetype-xml',
+            'sh': 'filetype-sh',
+            'txt': 'file-earmark-text',
+            'zip': 'file-earmark-zip',
+            'tar': 'file-earmark-zip',
+            'gz': 'file-earmark-zip',
+            'tgz': 'file-earmark-zip',
+            'jpg': 'file-earmark-image',
+            'jpeg': 'file-earmark-image',
+            'png': 'file-earmark-image',
+            'gif': 'file-earmark-image',
+            'bmp': 'file-earmark-image',
+            'webp': 'file-earmark-image',
+            'svg': 'file-earmark-image',
+            'pdf': 'filetype-pdf'
+        };
+        return iconMap[extension] || 'file-earmark';
+    }
+
+    function listFiles(path) {
+        currentPath = path;
+        fileSearchInput.value = ''; 
+        const fileListContainer = document.getElementById('file-list-container');
+        const pathDisplay = document.getElementById('current-path-display');
+        const backButtonContainer = document.getElementById('back-button-container');
+        
+        pathDisplay.textContent = `Current Path: /${path}`;
+        backButtonContainer.innerHTML = '';
+        fileListContainer.innerHTML = 'Loading...';
+
+        if (path) {
+            const backButton = document.createElement('div');
+            backButton.className = 'file-box';
+            backButton.innerHTML = `<span class="file-label"><i class="bi bi-folder"></i> ..</span>`;
+            backButton.onclick = () => {
+                const parentPath = path.split('/').slice(0, -1).join('/');
+                listFiles(parentPath);
+            };
+            backButtonContainer.appendChild(backButton);
+        }
+
+        fetch(`/api/list_files/{{ owner }}/{{ server_name }}?path=${path}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    fileListContainer.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    return;
+                }
+                allDirs = data.dirs;
+                allFiles = data.files;
+                filterFiles();
+            })
+            .catch(error => {
+                fileListContainer.innerHTML = `<div class="alert alert-danger">Failed to load files.</div>`;
+                console.error('Error fetching file list:', error);
+            });
+    }
+    function updateBulkActionVisibility() {
+        const checkedBoxes = document.querySelectorAll('.file-checkbox:checked');
+        const bulkActionForm = document.getElementById('bulk-action-form');
+        if (checkedBoxes.length > 0) {
+            bulkActionForm.style.display = 'block';
+        } else {
+            bulkActionForm.style.display = 'none';
+        }
+    }
+
+    function handleBulkAction(action) {
+        const checkedBoxes = document.querySelectorAll('.file-checkbox:checked');
+        const selectedFiles = Array.from(checkedBoxes).map(cb => cb.value);
+        if (selectedFiles.length === 0) return;
+
+        const formData = new FormData();
+        formData.append('path', currentPath);
+        selectedFiles.forEach(file => formData.append('selected_files', file));
+        
+        let url = '';
+        if (action === 'archive') {
+            url = `/console/{{ owner }}/{{ server_name }}/archive`;
+            fetch(url, { method: 'POST', body: formData })
+                .then(response => {
+                    // Check if the response is a file stream or JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        // Handle the file download
+                        return response.blob().then(blob => {
+                            const contentDisposition = response.headers.get('Content-Disposition');
+                            const filename = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'archive.zip';
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            a.remove();
+                            showToast('success', 'Archive created and downloaded successfully.');
+                            return {}; // Return an empty object to satisfy the .then chain
+                        });
+                    }
+                })
+                .then(data => {
+                    if (data && data.error) {
+                        showToast('danger', `Failed to create archive: ${data.error}`);
+                    } else if (data && data.filename) {
+                        // The server returned a JSON success response with a filename
+                        showToast('success', `Archive '${data.filename}' created successfully in /${data.path}`);
+                    }
+                    listFiles(currentPath);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('danger', 'An error occurred during the archive operation.');
+                });
+        } else if (action === 'delete_multiple') {
+            url = `/console/{{ owner }}/{{ server_name }}/delete_multiple`;
+            fetch(url, { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showToast('danger', data.error);
+                } else {
+                    showToast('success', data.message || `Selected items deleted successfully.`);
+                    listFiles(currentPath);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('danger', 'An error occurred during the bulk operation.');
+            });
+        }
+    }
+    // File/Folder Creation
+    const createFileModal = new bootstrap.Modal(document.getElementById('createFileModal'));
+    document.getElementById('create-file-btn').addEventListener('click', () => {
+        const filename = document.getElementById('new-file-name').value;
+        fetch(`/console/{{ owner }}/{{ server_name }}/create_file`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `path=${encodeURIComponent(currentPath)}&file_name=${encodeURIComponent(filename)}`
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  showToast('success', `File '${filename}' created.`);
+                  listFiles(currentPath);
+              } else {
+                  showToast('danger', `Failed to create file: ${data.error}`);
+              }
+              createFileModal.hide();
+          });
+    });
+
+    const createFolderModal = new bootstrap.Modal(document.getElementById('createFolderModal'));
+    document.getElementById('create-folder-btn').addEventListener('click', () => {
+        const dirname = document.getElementById('new-folder-name').value;
+        fetch(`/console/{{ owner }}/{{ server_name }}/create_dir`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `path=${encodeURIComponent(currentPath)}&dir_name=${encodeURIComponent(dirname)}`
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  showToast('success', `Folder '${dirname}' created.`);
+                  listFiles(currentPath);
+              } else {
+                  showToast('danger', `Failed to create folder: ${data.error}`);
+              }
+              createFolderModal.hide();
+          });
+    });
+    
+    // File Deletion
+    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    let itemToDelete = null;
+    function confirmDeleteItem(event) {
+        const target = event.target.closest('[data-item-name]');
+        itemToDelete = {
+            path: target.dataset.path,
+            name: target.dataset.itemName
+        };
+        document.getElementById('item-to-delete-name').textContent = itemToDelete.name;
+        confirmDeleteModal.show();
+    }
+    document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+        fetch(`/console/{{ owner }}/{{ server_name }}/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `path=${encodeURIComponent(itemToDelete.path)}&item_name=${encodeURIComponent(itemToDelete.name)}`
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  showToast('success', `${itemToDelete.name} deleted.`);
+                  listFiles(itemToDelete.path);
+              } else {
+                  showToast('danger', `Failed to delete: ${data.error}`);
+              }
+              confirmDeleteModal.hide();
+          });
+    });
+
+    // File Unarchiving
+    const confirmUnarchiveModal = new bootstrap.Modal(document.getElementById('confirmUnarchiveModal'));
+    let fileToUnarchive = null;
+    function confirmUnarchiveItem(event) {
+        const target = event.target.closest('[data-filename]');
+        fileToUnarchive = {
+            path: target.dataset.path,
+            name: target.dataset.filename
+        };
+        document.getElementById('item-to-unarchive-name').textContent = fileToUnarchive.name;
+        confirmUnarchiveModal.show();
+    }
+    document.getElementById('confirm-unarchive-btn').addEventListener('click', () => {
+        fetch(`/console/{{ owner }}/{{ server_name }}/unarchive`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `path=${encodeURIComponent(fileToUnarchive.path)}&filename=${encodeURIComponent(fileToUnarchive.name)}`
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  showToast('success', data.message);
+                  listFiles(fileToUnarchive.path);
+              } else {
+                  showToast('danger', `Failed to unarchive: ${data.error}`);
+              }
+              confirmUnarchiveModal.hide();
+          });
+    });
+
+    // File Upload
+    const fileInput = document.getElementById('file-input');
+    const uploadForm = document.getElementById('upload-file-form');
+    fileInput.addEventListener('change', uploadFiles);
+    
+    function uploadFiles() {
+        if (fileInput.files.length === 0) return;
+
+        const formData = new FormData();
+        formData.append('path', currentPath);
+        for (const file of fileInput.files) {
+            formData.append('files', file);
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/console/{{ owner }}/{{ server_name }}/upload`, true);
+
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
+        const uploadStatusText = document.getElementById('upload-status-text');
+
+        uploadProgressContainer.style.display = 'block';
+        uploadStatusText.textContent = `Uploading ${fileInput.files.length} file(s)...`;
+        uploadProgressBar.style.width = '0%';
+        uploadProgressBar.textContent = '0%';
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                uploadProgressBar.style.width = `${percent}%`;
+                uploadProgressBar.textContent = `${percent}%`;
+            }
+        });
+
+        xhr.onload = () => {
+            uploadProgressContainer.style.display = 'none';
+            fileInput.value = null; // Reset the input
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                showToast('success', data.message);
+                listFiles(currentPath);
+            } else {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    showToast('danger', data.error);
+                } catch(e) {
+                    showToast('danger', `Upload failed with status code ${xhr.status}.`);
+                }
+            }
+        };
+
+        xhr.onerror = () => {
+            uploadProgressContainer.style.display = 'none';
+            fileInput.value = null;
+            showToast('danger', 'An error occurred during upload.');
+        };
+        
+        xhr.send(formData);
+    }
+    
+    // Drag and drop for upload
+    const contentArea = document.querySelector('.content');
+    const uploadOverlay = document.getElementById('upload-overlay');
+    const overlayDropzone = document.getElementById('overlay-dropzone');
+    
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Handle dragging over the body
+    document.body.addEventListener('dragenter', () => {
+        uploadOverlay.classList.add('visible');
+    }, false);
+
+    overlayDropzone.addEventListener('dragover', (e) => {
+        overlayDropzone.classList.add('drag-over');
+    });
+
+    overlayDropzone.addEventListener('dragleave', (e) => {
+        if (e.relatedTarget === null || !overlayDropzone.contains(e.relatedTarget)) {
+            uploadOverlay.classList.remove('visible');
+        }
+    });
+
+    overlayDropzone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+        uploadOverlay.classList.remove('visible');
+    }
+
+    function handleFiles(files) {
+        if (files.length === 0) return;
+        
+        const formData = new FormData();
+        formData.append('path', currentPath);
+        for (const file of files) {
+            formData.append('files', file);
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/console/{{ owner }}/{{ server_name }}/upload`, true);
+
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
+        const uploadStatusText = document.getElementById('upload-status-text');
+
+        uploadProgressContainer.style.display = 'block';
+        uploadStatusText.textContent = `Uploading ${files.length} file(s) via drag-and-drop...`;
+        uploadProgressBar.style.width = '0%';
+        uploadProgressBar.textContent = '0%';
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                uploadProgressBar.style.width = `${percent}%`;
+                uploadProgressBar.textContent = `${percent}%`;
+            }
+        });
+
+        xhr.onload = () => {
+            uploadProgressContainer.style.display = 'none';
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                showToast('success', data.message);
+                listFiles(currentPath);
+            } else {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    showToast('danger', data.error);
+                } catch(e) {
+                    showToast('danger', `Upload failed with status code ${xhr.status}.`);
+                }
+            }
+        };
+
+        xhr.onerror = () => {
+            uploadProgressContainer.style.display = 'none';
+            showToast('danger', 'An error occurred during drag-and-drop upload.');
+        };
+
+        xhr.send(formData);
+    }
+
+    // Rename Modal
+    const renameModal = new bootstrap.Modal(document.getElementById('renameModal'));
+    let itemToRename = null;
+
+    function openRenameModal(event) {
+        const target = event.target.closest('[data-item-name]');
+        itemToRename = {
+            path: target.dataset.path,
+            name: target.dataset.itemName
+        };
+        document.getElementById('rename-old-name').value = itemToRename.name;
+        document.getElementById('rename-new-name').value = itemToRename.name;
+        renameModal.show();
+    }
+    
+    document.getElementById('rename-btn').addEventListener('click', () => {
+        const newName = document.getElementById('rename-new-name').value;
+        if (!newName) {
+            showToast('danger', 'New name cannot be empty.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('path', itemToRename.path);
+        formData.append('old_name', itemToRename.name);
+        formData.append('new_name', newName);
+
+        fetch(`/console/{{ owner }}/{{ server_name }}/rename`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', `Renamed '${itemToRename.name}' to '${newName}'.`);
+                listFiles(itemToRename.path);
+            } else {
+                showToast('danger', `Failed to rename: ${data.error}`);
+            }
+            renameModal.hide();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('danger', 'An error occurred during rename.');
+        });
+    });
+
+    // Move Modal
+    const moveModal = new bootstrap.Modal(document.getElementById('moveModal'));
+    let itemToMove = null;
+    let currentMovePath = '';
+    const moveBreadcrumb = document.getElementById('move-breadcrumb');
+    const moveFolderList = document.getElementById('move-folder-list');
+    const confirmMoveBtn = document.getElementById('confirm-move-btn');
+
+    function openMoveModal(event) {
+        const target = event.target.closest('[data-item-name]');
+        itemToMove = {
+            sourcePath: target.dataset.path,
+            name: target.dataset.itemName
+        };
+        document.getElementById('item-to-move-name').textContent = itemToMove.name;
+        currentMovePath = '';
+        listMoveFolders('');
+        moveModal.show();
+    }
+
+    function listMoveFolders(path) {
+        currentMovePath = path;
+        moveBreadcrumb.innerHTML = '';
+        moveFolderList.innerHTML = 'Loading...';
+        confirmMoveBtn.disabled = true;
+
+        if (path) {
+            const pathSegments = path.split('/');
+            let currentPathSoFar = '';
+            
+            // Add a "Root" breadcrumb item
+            const rootItem = document.createElement('li');
+            rootItem.className = 'breadcrumb-item';
+            rootItem.innerHTML = `<a href="#">/</a>`;
+            rootItem.onclick = (e) => {
+                e.preventDefault();
+                listMoveFolders('');
+            };
+            moveBreadcrumb.appendChild(rootItem);
+            
+            // Add other path segments
+            pathSegments.forEach(segment => {
+                if (segment) {
+                    currentPathSoFar += `/${segment}`;
+                    const breadcrumbItem = document.createElement('li');
+                    breadcrumbItem.className = 'breadcrumb-item';
+                    if (currentPathSoFar === `/${path}`) {
+                        breadcrumbItem.classList.add('active');
+                        breadcrumbItem.setAttribute('aria-current', 'page');
+                        breadcrumbItem.textContent = segment;
+                    } else {
+                        breadcrumbItem.innerHTML = `<a href="#" data-path="${currentPathSoFar.substring(1)}">${segment}</a>`;
+                        breadcrumbItem.onclick = (e) => {
+                            e.preventDefault();
+                            listMoveFolders(e.target.dataset.path);
+                        };
+                    }
+                    moveBreadcrumb.appendChild(breadcrumbItem);
+                }
+            });
+            confirmMoveBtn.disabled = false;
+        } else {
+            const rootItem = document.createElement('li');
+            rootItem.className = 'breadcrumb-item active';
+            rootItem.setAttribute('aria-current', 'page');
+            rootItem.textContent = '/';
+            moveBreadcrumb.appendChild(rootItem);
+            confirmMoveBtn.disabled = false; // Enable move to root
+        }
+
+        fetch(`/api/list_files/{{ owner }}/{{ server_name }}?path=${path}`)
+            .then(response => response.json())
+            .then(data => {
+                moveFolderList.innerHTML = '';
+                if (data.error) {
+                    moveFolderList.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    return;
+                }
+                data.dirs.forEach(dir => {
+                    const dirPath = [path, dir].filter(Boolean).join('/');
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    a.className = 'list-group-item list-group-item-action bg-dark text-white border-secondary';
+                    a.innerHTML = `<i class="bi bi-folder-fill me-2"></i> ${dir}`;
+                    a.onclick = (e) => {
+                        e.preventDefault();
+                        listMoveFolders(dirPath);
+                    };
+                    moveFolderList.appendChild(a);
+                });
+            })
+            .catch(error => {
+                moveFolderList.innerHTML = `<div class="alert alert-danger">Failed to load directories.</div>`;
+                console.error('Error fetching directory list:', error);
+            });
+    }
+
+    document.getElementById('confirm-move-btn').addEventListener('click', () => {
+        if (!itemToMove) return;
+
+        const formData = new FormData();
+        formData.append('source_path', itemToMove.sourcePath);
+        formData.append('new_path', currentMovePath);
+        formData.append('item_name', itemToMove.name);
+
+        fetch(`/console/{{ owner }}/{{ server_name }}/move`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', `Moved '${itemToMove.name}' to '/${currentMovePath}'.`);
+                listFiles(itemToMove.sourcePath); // Refresh the original directory
+            } else {
+                showToast('danger', `Failed to move: ${data.error}`);
+            }
+            moveModal.hide();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('danger', 'An error occurred during move.');
+        });
+    });
+
+    // File Details
+    const fileDetailsModal = new bootstrap.Modal(document.getElementById('fileDetailsModal'));
+    
+    // Note: The click handler for the file label is now inside filterFiles/listFiles 
+    // to ensure the event listeners are attached to the newly created elements.
+    // The general document click handler below is no longer needed/relevant for this functionality.
+    
+    // Editor Logic
+    let editor = null;
+    let editingFile = { path: '', filename: '' };
+    const editorSection = document.getElementById('editor-section');
+    const fileEditorTextarea = document.getElementById('file-editor');
+
+
+    function getModeForFile(filename) {
+        const ext = filename.split('.').pop();
+        const modeMap = {
+            py: 'python',
+            js: 'javascript',
+            html: 'xml',
+            css: 'css',
+            json: {name: 'javascript', json: true},
+            sh: 'shell',
+            txt: 'text/plain',
+            md: 'markdown',
+            xml: 'xml'
+        };
+        return modeMap[ext] || 'text/plain';
+    }
+
+    function openEditor(event) {
+        const target = event.target.closest('[data-filename]');
+        editingFile.path = target.dataset.path;
+        editingFile.filename = target.dataset.filename;
+        
+        showTab('editor-section');
+        document.getElementById('editing-filename').textContent = editingFile.filename;
+        
+        // Remove focus from the file element to prevent weird scroll behavior
+        document.activeElement.blur();
+
+        fetch(`/api/get_file_content/{{ owner }}/{{ server_name }}?path=${editingFile.path}&filename=${editingFile.filename}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (editor) {
+                        // Destroy existing CodeMirror instance to re-initialize with the right mode/content
+                        editor.toTextArea();
+                        editor = null;
+                    }
+
+                    // Set the content on the original textarea before initializing CodeMirror
+                    fileEditorTextarea.value = data.content;
+                    
+                    // Initialize CodeMirror
+                    editor = CodeMirror.fromTextArea(fileEditorTextarea, {
+                        lineNumbers: true,
+                        theme: 'monokai',
+                        mode: getModeForFile(editingFile.filename),
+                        indentUnit: 4,
+                        tabSize: 4,
+                        autofocus: true
+                    });
+                    
+                    // Crucial for CodeMirror rendering properly after being hidden
+                    setTimeout(() => {
+                        editor.refresh();
+                    }, 10);
+                } else {
+                    showToast('danger', `Failed to open file: ${data.error}`);
+                    closeEditor();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching file content:', error);
+                showToast('danger', 'An error occurred while opening the file.');
+                closeEditor();
+            });
+    }
+
+    function saveFile() {
+        if (!editor) {
+            showToast('danger', 'Editor is not active.');
+            return;
+        }
+        
+        const content = editor.getValue();
+        const formData = new FormData();
+        formData.append('path', editingFile.path);
+        formData.append('filename', editingFile.filename);
+        formData.append('content', content);
+
+        fetch(`/api/save_file_content/{{ owner }}/{{ server_name }}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', data.message);
+            } else {
+                showToast('danger', `Failed to save file: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving file:', error);
+            showToast('danger', 'An error occurred while saving the file.');
+        });
+    }
+
+    function closeEditor() {
+        showTab('files-section');
+        if (editor) {
+            // Destroy the CodeMirror instance
+            editor.toTextArea();
+            editor = null;
+        }
+    }
+
+    // File Preview Modal
+    const filePreviewModal = new bootstrap.Modal(document.getElementById('filePreviewModal'));
+    function openPreviewModal(event) {
+        const target = event.target.closest('[data-filename]');
+        const path = target.dataset.path;
+        const filename = target.dataset.filename;
+        const filetype = target.dataset.filetype;
+
+        document.getElementById('preview-filename').textContent = filename;
+        const modalBody = document.getElementById('file-preview-modal-body');
+        modalBody.innerHTML = '';
+        
+        if (filetype === 'image') {
+            const img = document.createElement('img');
+            img.src = `/console/{{ owner }}/{{ server_name }}/download?path=${path}&filename=${filename}`;
+            img.alt = `Preview of ${filename}`;
+            modalBody.appendChild(img);
+        } else if (filetype === 'pdf') {
+            const iframe = document.createElement('iframe');
+            iframe.src = `/console/{{ owner }}/{{ server_name }}/download?path=${path}&filename=${filename}`;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            modalBody.appendChild(iframe);
+        } else {
+            // For other file types, display as raw text
+            fetch(`/api/get_file_content/{{ owner }}/{{ server_name }}?path=${path}&filename=${filename}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const pre = document.createElement('pre');
+                        pre.textContent = data.content;
+                        modalBody.appendChild(pre);
+                    } else {
+                        modalBody.innerHTML = `<p class="text-danger">Failed to load content: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    modalBody.innerHTML = `<p class="text-danger">Error: Could not fetch file content.</p>`;
+                    console.error('Error fetching file content:', error);
+                });
+        }
+        filePreviewModal.show();
+    }
+    
+    // Split Section
+    const parentRam = {{ server.ram|int }};
+    const parentCpu = {{ server.cpu|int }};
+    const parentDisk = {{ server.disk|int }};
+
+    function updateRemaining() {
+        const newRam = parseInt(document.getElementById('new_server_ram').value) || 0;
+        const newCpu = parseInt(document.getElementById('new_server_cpu').value) || 0;
+        const newDisk = parseInt(document.getElementById('new_server_disk').value) || 0;
+
+        document.getElementById('remaining_ram').textContent = parentRam - newRam;
+        document.getElementById('remaining_cpu').textContent = parentCpu - newCpu;
+        document.getElementById('remaining_disk').textContent = parentDisk - newDisk;
+    }
+    
+    function listSplitServers() {
+        const container = document.getElementById('split-servers-container');
+        container.innerHTML = 'Loading split servers...';
+        
+        fetch(`/api/list_split_servers/{{ owner }}/{{ server_name }}`)
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = '';
+                if (data.split_servers && data.split_servers.length > 0) {
+                    data.split_servers.forEach(server => {
+                        const div = document.createElement('div');
+                        div.className = 'file-box d-flex align-items-center mb-3';
+                        div.innerHTML = `
+                            <div class="file-label flex-grow-1">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <div class="ms-2">
+                                    <strong>${server.name}</strong> <small class="text-muted">(RAM: ${server.ram} MB, CPU: ${server.cpu}%, Disk: ${server.disk} MB)</small>
+                                </div>
+                            </div>
+                            <div class="file-actions ms-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary manage-split-server-btn" 
+                                    data-server-name="${server.name}" 
+                                    data-server-ram="${server.ram}" 
+                                    data-server-cpu="${server.cpu}" 
+                                    data-server-disk="${server.disk}">
+                                    Manage
+                                </button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                     // Attach event listeners for the new buttons
+                    document.querySelectorAll('.manage-split-server-btn').forEach(btn => {
+                        btn.addEventListener('click', openManageSplitServerModal);
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-secondary">No servers have been split from this one yet.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching split servers:', error);
+                container.innerHTML = '<p class="text-danger">Failed to load split servers.</p>';
+            });
+    }
+
+    const manageSplitServerModal = new bootstrap.Modal(document.getElementById('manageSplitServerModal'));
+    let currentManagedServer = null;
+    let originalParentResources = { ram: parentRam, cpu: parentCpu, disk: parentDisk };
+
+    function openManageSplitServerModal(event) {
+        const btn = event.target;
+        currentManagedServer = {
+            name: btn.dataset.serverName,
+            ram: parseInt(btn.dataset.serverRam),
+            cpu: parseInt(btn.dataset.serverCpu),
+            disk: parseInt(btn.dataset.serverDisk)
+        };
+        
+        document.getElementById('manageSplitServerModalLabel').textContent = `Manage: ${currentManagedServer.name}`;
+        document.getElementById('manage-server-info').innerHTML = `Current Resources: RAM: ${currentManagedServer.ram} MB, CPU: ${currentManagedServer.cpu}%, Disk: ${currentManagedServer.disk} MB`;
+
+        document.getElementById('edit_server_ram').value = currentManagedServer.ram;
+        document.getElementById('edit_server_cpu').value = currentManagedServer.cpu;
+        document.getElementById('edit_server_disk').value = currentManagedServer.disk;
+        
+        manageSplitServerModal.show();
+    }
+
+    document.getElementById('save-split-changes-btn').addEventListener('click', () => {
+        if (!currentManagedServer) return;
+
+        const newRam = parseInt(document.getElementById('edit_server_ram').value);
+        const newCpu = parseInt(document.getElementById('edit_server_cpu').value);
+        const newDisk = parseInt(document.getElementById('edit_server_disk').value);
+        
+        const oldRam = currentManagedServer.ram;
+        const oldCpu = currentManagedServer.cpu;
+        const oldDisk = currentManagedServer.disk;
+
+        // Fetch current resources of the parent server to ensure real-time accuracy
+        fetch(`/api/list_split_servers/{{ owner }}/{{ server_name }}`)
+            .then(response => response.json())
+            .then(data => {
+                const parent_server = data.split_servers.find(s => s.name === currentManagedServer.name)?.parent_server;
+                const parent = data.split_servers.find(s => s.name === parent_server) || { ram: parentRam, cpu: parentCpu, disk: parentDisk }; // Fallback to initial parent if it's the current server
+
+                const totalRam = parseInt(parent.ram) + oldRam;
+                const totalCpu = parseInt(parent.cpu) + oldCpu;
+                const totalDisk = parseInt(parent.disk) + oldDisk;
+
+                if (newRam > totalRam || newCpu > totalCpu || newDisk > totalDisk) {
+                    showToast('danger', `Insufficient resources. The parent server only has ${parent.ram} MB RAM, ${parent.cpu}% CPU, and ${parent.disk} MB Disk available.`);
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('new_ram', newRam);
+                formData.append('new_cpu', newCpu);
+                formData.append('new_disk', newDisk);
+
+                fetch(`/api/update_split_server/{{ owner }}/${currentManagedServer.name}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message);
+                        listSplitServers(); // Refresh the list
+                    } else {
+                        showToast('danger', `Update failed: ${data.error}`);
+                    }
+                    manageSplitServerModal.hide();
+                })
+                .catch(error => {
+                    console.error('Error updating split server:', error);
+                    showToast('danger', 'An error occurred while updating the server.');
+                });
+
+            });
+    });
+
+    const confirmDeleteSplitServerModal = new bootstrap.Modal(document.getElementById('confirmDeleteSplitServerModal'));
+    document.getElementById('delete-split-server-btn').addEventListener('click', () => {
+        document.getElementById('server-to-delete-name').textContent = currentManagedServer.name;
+        confirmDeleteSplitServerModal.show();
+    });
+
+    document.getElementById('confirm-delete-split-server-btn').addEventListener('click', () => {
+        if (!currentManagedServer) return;
+
+        fetch(`/api/delete_split_server/{{ owner }}/${currentManagedServer.name}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', data.message);
+                listSplitServers();
+                // Optionally refresh the main console stats if needed
+            } else {
+                showToast('danger', `Deletion failed: ${data.error}`);
+            }
+            confirmDeleteSplitServerModal.hide();
+            manageSplitServerModal.hide();
+        })
+        .catch(error => {
+            console.error('Error deleting split server:', error);
+            showToast('danger', 'An error occurred while deleting the server.');
+        });
+    });
+
+    // Toast notifications
+    function showToast(type, message) {
+        const toastContainer = document.getElementById('toast-container');
+        const toastId = `toast-${Date.now()}`;
+        const toastHtml = `
+            <div id="${toastId}" class="toast align-items-center text-white bg-dark border-0 toast-${type}" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        const toastEl = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+        toast.show();
+    }
+</script>
+</body>
+</html>

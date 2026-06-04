@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | {{ username }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-darker: #06090f;
+            --surface: #131823;
+            --card: #1a2232;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59,130,246,0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #f0f4f8;
+            --text-secondary: #94a3b8;
+            --border: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-dark);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-darker);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 16px;
+            margin: 8px 0;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Terminal Sidebar */
+        .terminal-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: var(--bg-darker);
+            border-left: 1px solid var(--border);
+            z-index: 200;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-sidebar.open {
+            right: 0;
+        }
+
+        .terminal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            background: #0a0e17;
+        }
+
+        .terminal-line {
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .terminal-line.prompt {
+            color: var(--success);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Stats Widget */
+        .stats-widget {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px 30px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .stat-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* Server Grid */
+        .servers-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .server-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .server-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .server-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .server-status.online {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .server-status.offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .server-status.online::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Terminal Toggle Button */
+        .terminal-toggle {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-toggle:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .stats-widget {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .terminal-sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <div class="logo-icon"><i class="bi bi-cpu"></i></div>
+        <div class="logo-text">AntraxPanel</div>
+    </div>
+    <a href="#" class="nav-item active">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+        <span>Dashboard</span>
+    </a>
+    <a href="{{ url_for('account') }}" class="nav-item">
+        <i class="bi bi-person-circle"></i>
+        <span>Account</span>
+    </a>
+    <a href="{{ url_for('settings') }}" class="nav-item">
+        <i class="bi bi-gear"></i>
+        <span>Settings</span>
+    </a>
+    {% if username == 'Antrax' %}
+    <a href="{{ url_for('admin') }}" class="nav-item">
+        <i class="bi bi-shield-lock"></i>
+        <span>Admin Panel</span>
+    </a>
+    {% endif %}
+    <div style="flex: 1;"></div>
+    <a href="{{ url_for('logout') }}" class="nav-item" style="color: var(--danger);">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+    </a>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="btn btn-dark" id="mobileMenuToggle" style="display: none;">
+            <i class="bi bi-list"></i>
+        </button>
+        <div>
+            <h5 style="margin: 0;">Welcome back, <span style="color: var(--accent);">{{ username }}</span></h5>
+            <small class="text-secondary">Your infrastructure at a glance</small>
+        </div>
+        <button class="terminal-toggle" id="terminalToggle">
+            <i class="bi bi-terminal"></i> Open Terminal
+        </button>
+    </div>
+
+    <div class="stats-widget" id="statsWidget">
+        <div class="stat-card">
+            <div class="stat-title">CPU Usage</div>
+            <div class="stat-value" id="cpuValue">0%</div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar" id="cpuBar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Memory Usage</div>
+            <div class="stat-value" id="memValue">0 GB</div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar bg-success" id="memBar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Disk Usage</div>
+            <div class="stat-value" id="diskValue">0 GB</div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar bg-warning" id="diskBar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Active Processes</div>
+            <div class="stat-value" id="processCount">0</div>
+            <small class="text-secondary">System running</small>
+        </div>
+    </div>
+
+    <div class="servers-grid">
+        {% for server in servers %}
+        <div class="server-card" onclick="window.location.href='{{ url_for('console', owner=server.owner, server_name=server.name) }}'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h6 style="margin: 0;">{{ server.name }}</h6>
+                <span class="server-status {{ server.status|lower }}">{{ server.status }}</span>
+            </div>
+            <div class="mb-2">
+                <small class="text-secondary">RAM: </small>
+                <strong id="ram-{{ loop.index }}">-</strong>
+                <small> / {{ (server.ram|int / 1024)|round(1) if server.ram|int >= 1024 else server.ram ~ 'MB' }}</small>
+            </div>
+            <div class="mb-2">
+                <small class="text-secondary">CPU: </small>
+                <strong id="cpu-{{ loop.index }}">-</strong>
+                <small> / {{ server.cpu }}%</small>
+            </div>
+            <div>
+                <small class="text-secondary">Disk: </small>
+                <strong id="disk-{{ loop.index }}">-</strong>
+                <small> / {{ (server.disk|int / 1024)|round(1) if server.disk|int >= 1024 else server.disk ~ 'MB' }}</small>
+            </div>
+        </div>
+        {% endfor %}
+        {% if servers|length == 0 %}
+        <div class="text-center" style="grid-column: 1/-1; padding: 50px;">
+            <i class="bi bi-server" style="font-size: 64px; color: var(--text-secondary);"></i>
+            <h5 class="mt-3">No servers found</h5>
+            <p class="text-secondary">Contact your administrator to get started.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="terminal-sidebar" id="terminalSidebar">
+    <div class="terminal-header">
+        <h6 style="margin: 0;"><i class="bi bi-terminal"></i> System Terminal</h6>
+        <button class="btn-close btn-close-white" id="closeTerminal"></button>
+    </div>
+    <div class="terminal-content" id="terminalContent">
+        <div class="terminal-line prompt">$ Welcome to AntraxPanel Terminal</div>
+        <div class="terminal-line">Type commands or view system logs here...</div>
+        <div class="terminal-line">----------------------------------------</div>
+    </div>
+    <div style="padding: 20px; border-top: 1px solid var(--border);">
+        <div class="input-group">
+            <span class="input-group-text bg-dark text-secondary border-secondary">$</span>
+            <input type="text" class="form-control bg-dark text-white border-secondary" id="terminalInput" placeholder="Enter command...">
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Terminal Sidebar Toggle
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const terminalToggle = document.getElementById('terminalToggle');
+    const closeTerminal = document.getElementById('closeTerminal');
+
+    terminalToggle.addEventListener('click', () => {
+        terminalSidebar.classList.add('open');
+    });
+
+    closeTerminal.addEventListener('click', () => {
+        terminalSidebar.classList.remove('open');
+    });
+
+    // Mobile menu
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
+
+    // Real-time system stats
+    async function updateSystemStats() {
+        try {
+            const response = await fetch('/api/system_stats');
+            const stats = await response.json();
+            
+            document.getElementById('cpuValue').textContent = `${stats.cpu.percent}%`;
+            document.getElementById('cpuBar').style.width = `${stats.cpu.percent}%`;
+            
+            document.getElementById('memValue').textContent = `${stats.memory.used.toFixed(1)} / ${stats.memory.total.toFixed(1)} GB`;
+            document.getElementById('memBar').style.width = `${stats.memory.percent}%`;
+            
+            document.getElementById('diskValue').textContent = `${stats.disk.used.toFixed(1)} / ${stats.disk.total.toFixed(1)} GB`;
+            document.getElementById('diskBar').style.width = `${stats.disk.percent}%`;
+            
+            document.getElementById('processCount').textContent = stats.processes;
+            
+            // Add to terminal
+            addTerminalLine(`[${new Date().toLocaleTimeString()}] System: CPU ${stats.cpu.percent}% | MEM ${stats.memory.percent}% | DISK ${stats.disk.percent}%`, 'info');
+        } catch(e) {
+            console.error('Failed to fetch stats:', e);
+        }
+    }
+
+    // Update server stats
+    const servers = {{ servers|tojson|safe }};
+    
+    async function updateServerStats() {
+        for (let i = 0; i < servers.length; i++) {
+            const server = servers[i];
+            try {
+                const response = await fetch(`/server_stats/${server.owner}/${server.name}`);
+                const data = await response.json();
+                
+                if (!data.error) {
+                    document.getElementById(`ram-${i+1}`).textContent = data.ram_used;
+                    document.getElementById(`cpu-${i+1}`).textContent = `${data.cpu.toFixed(1)}%`;
+                    document.getElementById(`disk-${i+1}`).textContent = data.disk_used;
+                }
+            } catch(e) {
+                console.error(`Failed to fetch stats for ${server.name}:`, e);
+            }
+        }
+    }
+
+    // Add terminal line
+    function addTerminalLine(text, type = 'normal') {
+        const terminalContent = document.getElementById('terminalContent');
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        if (type === 'prompt') line.classList.add('prompt');
+        line.textContent = text;
+        terminalContent.appendChild(line);
+        terminalContent.scrollTop = terminalContent.scrollHeight;
+        
+        // Keep only last 100 lines
+        while (terminalContent.children.length > 100) {
+            terminalContent.removeChild(terminalContent.firstChild);
+        }
+    }
+
+    // Terminal command handling
+    const terminalInput = document.getElementById('terminalInput');
+    terminalInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const command = terminalInput.value.trim();
+            if (command) {
+                addTerminalLine(`$ ${command}`, 'prompt');
+                // Handle basic commands
+                if (command === 'help') {
+                    addTerminalLine('Available commands: stats, clear, servers, uptime');
+                } else if (command === 'stats') {
+                    updateSystemStats();
+                } else if (command === 'clear') {
+                    document.getElementById('terminalContent').innerHTML = '';
+                    addTerminalLine('$ Terminal cleared', 'prompt');
+                } else if (command === 'servers') {
+                    addTerminalLine(`Active servers: ${servers.length}`);
+                    servers.forEach(s => addTerminalLine(`  - ${s.name} (${s.status})`));
+                } else if (command === 'uptime') {
+                    addTerminalLine(`System uptime: ${Math.floor(performance.now() / 1000 / 60)} minutes`);
+                } else if (command) {
+                    addTerminalLine(`Command not found: ${command}. Type 'help' for available commands.`);
+                }
+                terminalInput.value = '';
+            }
+        }
+    });
+
+    // Initial updates
+    updateSystemStats();
+    updateServerStats();
+    
+    // Set intervals for real-time updates
+    setInterval(updateSystemStats, 3000);
+    setInterval(updateServerStats, 5000);
+    
+    // Show mobile menu button on small screens
+    if (window.innerWidth < 768) {
+        document.getElementById('mobileMenuToggle').style.display = 'block';
+    }
+    
+    window.addEventListener('resize', () => {
+        const mobileBtn = document.getElementById('mobileMenuToggle');
+        if (window.innerWidth < 768) {
+            mobileBtn.style.display = 'block';
+        } else {
+            mobileBtn.style.display = 'none';
+            sidebar.classList.remove('open');
+        }
+    });
+</script>
+</body>
+</html>

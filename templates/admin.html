@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel | Antrax</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Same variables and base styles as dashboard */
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-darker: #06090f;
+            --surface: #131823;
+            --card: #1a2232;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59,130,246,0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #f0f4f8;
+            --text-secondary: #94a3b8;
+            --border: #2d3748;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-dark);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        /* Copy sidebar and main styles from dashboard */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-darker);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            z-index: 100;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 16px;
+            margin: 8px 0;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--surface);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .progress {
+            height: 8px;
+            background: var(--surface);
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+        
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            padding: 20px 25px;
+            font-weight: 600;
+        }
+        
+        .table {
+            color: var(--text-primary);
+        }
+        
+        .table thead th {
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        
+        .table td {
+            border-color: var(--border);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--accent-glow);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <div class="logo-icon"><i class="bi bi-shield-lock"></i></div>
+        <div class="logo-text">Admin Panel</div>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="nav-item">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+        <span>Dashboard</span>
+    </a>
+    <a href="#" class="nav-item active">
+        <i class="bi bi-shield-lock"></i>
+        <span>Admin</span>
+    </a>
+    <a href="{{ url_for('logout') }}" class="nav-item" style="color: var(--danger); margin-top: auto;">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+    </a>
+</div>
+
+<div class="main-content">
+    <h3 class="mb-4">Admin Control Panel</h3>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-memory"></i></div>
+            <div>Total RAM</div>
+            <div class="stat-value">{{ stats.total_ram }} / {{ stats.max_ram }}</div>
+            <div class="progress"><div class="progress-bar" style="width: {{ stats.ram_percent }}%"></div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-cpu"></i></div>
+            <div>Total CPU</div>
+            <div class="stat-value">{{ stats.total_cpu }}% / {{ stats.max_cpu }}%</div>
+            <div class="progress"><div class="progress-bar bg-warning" style="width: {{ stats.cpu_percent }}%"></div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-hdd"></i></div>
+            <div>Total Disk</div>
+            <div class="stat-value">{{ stats.total_disk }} / {{ stats.max_disk }}</div>
+            <div class="progress"><div class="progress-bar bg-info" style="width: {{ stats.disk_percent }}%"></div></div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-header">User Management</div>
+        <div class="card-body">
+            <form method="POST" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <input type="text" name="new_username" class="form-control bg-dark text-white border-secondary" placeholder="Username" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="password" name="new_password" class="form-control bg-dark text-white border-secondary" placeholder="Password" required>
+                </div>
+                <div class="col-md-4">
+                    <button name="create_user" class="btn btn-primary w-100">Create User</button>
+                </div>
+            </form>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr><th>Username</th><th>Role</th><th>Servers</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{% if user.username == 'Antrax' %}<span class="badge bg-primary">Admin</span>{% else %}<span class="badge bg-secondary">User</span>{% endif %}</td>
+                            <td>{{ user.servers }}</td>
+                            <td>
+                                {% if user.username != 'Antrax' %}
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editUserModal" 
+                                        data-username="{{ user.username }}">Edit</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Server Management</div>
+        <div class="card-body">
+            <form method="POST" class="row g-3 mb-4">
+                <div class="col-md-3"><input type="text" name="server_owner" class="form-control bg-dark text-white border-secondary" placeholder="Owner" required></div>
+                <div class="col-md-3"><input type="text" name="server_name" class="form-control bg-dark text-white border-secondary" placeholder="Server Name" required></div>
+                <div class="col-md-2"><input type="number" name="server_ram" class="form-control bg-dark text-white border-secondary" placeholder="RAM (MB)" required></div>
+                <div class="col-md-2"><input type="number" name="server_cpu" class="form-control bg-dark text-white border-secondary" placeholder="CPU (%)" required></div>
+                <div class="col-md-2"><input type="number" name="server_disk" class="form-control bg-dark text-white border-secondary" placeholder="Disk (MB)" required></div>
+                <div class="col-12"><button name="create_server" class="btn btn-primary">Create Server</button></div>
+            </form>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Server Name</th><th>Owner</th><th>Resources</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for server in servers %}
+                        <tr>
+                            <td>{{ server.name }}</td>
+                            <td>{{ server.owner }}</td>
+                            <td><small>{{ server.ram }}MB RAM • {{ server.cpu }}% CPU • {{ server.disk }}MB Disk</small></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editServerModal"
+                                        data-name="{{ server.name }}" data-owner="{{ server.owner }}" 
+                                        data-ram="{{ server.ram }}" data-cpu="{{ server.cpu }}" data-disk="{{ server.disk }}">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">System Settings</div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="registrationSwitch" name="registration_enabled" {% if registration_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="registrationSwitch">Enable User Registration</label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="splitterSwitch" name="splitter_enabled" {% if splitter_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="splitterSwitch">Enable Server Splitting</label>
+                </div>
+                <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Edit User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="old_username" id="edit-old-username">
+                    <div class="mb-3">
+                        <label class="form-label">New Username</label>
+                        <input type="text" name="new_username" id="edit-new-username" class="form-control bg-dark text-white border-secondary" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Password (optional)</label>
+                        <input type="password" name="new_password" id="edit-new-password" class="form-control bg-dark text-white border-secondary">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="submit" name="delete_user_from_modal" class="btn btn-danger">Delete User</button>
+                    <button type="submit" name="edit_user" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editServerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Edit Server</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="old_server_name" id="edit-old-server-name">
+                    <input type="hidden" name="old_owner" id="edit-old-owner">
+                    <div class="mb-3">
+                        <label class="form-label">Server Name</label>
+                        <input type="text" name="server_name" id="edit-server-name" class="form-control bg-dark text-white border-secondary" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Owner</label>
+                        <input type="text" name="server_owner" id="edit-server-owner" class="form-control bg-dark text-white border-secondary" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">RAM (MB)</label>
+                            <input type="number" name="server_ram" id="edit-server-ram" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">CPU (%)</label>
+                            <input type="number" name="server_cpu" id="edit-server-cpu" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Disk (MB)</label>
+                            <input type="number" name="server_disk" id="edit-server-disk" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="submit" name="delete_server_from_modal" class="btn btn-danger">Delete Server</button>
+                    <button type="submit" name="edit_server" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Edit User Modal
+    const editUserModal = document.getElementById('editUserModal');
+    editUserModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const username = button.getAttribute('data-username');
+        document.getElementById('edit-old-username').value = username;
+        document.getElementById('edit-new-username').value = username;
+    });
+    
+    // Edit Server Modal
+    const editServerModal = document.getElementById('editServerModal');
+    editServerModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        document.getElementById('edit-old-server-name').value = button.getAttribute('data-name');
+        document.getElementById('edit-old-owner').value = button.getAttribute('data-owner');
+        document.getElementById('edit-server-name').value = button.getAttribute('data-name');
+        document.getElementById('edit-server-owner').value = button.getAttribute('data-owner');
+        document.getElementById('edit-server-ram').value = button.getAttribute('data-ram');
+        document.getElementById('edit-server-cpu').value = button.getAttribute('data-cpu');
+        document.getElementById('edit-server-disk').value = button.getAttribute('data-disk');
+    });
+    
+    // Mobile menu
+    let sidebar = document.getElementById('sidebar');
+    let mobileToggle = document.getElementById('mobileMenuToggle');
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    }
+</script>
+</body>
+</html>

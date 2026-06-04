@@ -1,0 +1,10 @@
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <i class="bi bi-hdd-stack"></i>
+    <h4>Panel</h4>
+  </div>
+  <a href="{{ url_for('dashboard') }}" class="{{ 'active' if page == 'dashboard' }}"><i class="bi bi-grid-1x2-fill"></i> <span>Dashboard</span></a>
+  <a href="{{ url_for('account') }}" class="{{ 'active' if page == 'account' }}"><i class="bi bi-person-fill"></i> <span>Account</span></a>
+  <a href="{{ url_for('settings') }}" class="{{ 'active' if page == 'settings' }}"><i class="bi bi-gear-fill"></i> <span>Settings</span></a>
+  <a href="{{ url_for('logout') }}" class="logout"><i class="bi bi-box-arrow-right"></i> <span>Logout</span></a>
+</div>
