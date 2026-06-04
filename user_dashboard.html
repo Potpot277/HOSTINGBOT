@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TESSL | {{ username }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-dark: #0a0e1a; --bg-card: #0f1420; --accent-primary: #3b82f6; --accent-secondary: #8b5cf6; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #1e293b; }
+        body { background: var(--bg-dark); font-family: 'Inter', sans-serif; color: var(--text-primary); }
+        .sidebar { width: 280px; background: #0b0f17; border-right: 1px solid var(--border-color); position: fixed; height: 100vh; padding: 24px 0; }
+        .sidebar-header { padding: 0 24px 24px 24px; border-bottom: 1px solid var(--border-color); }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: var(--text-secondary); text-decoration: none; transition: all 0.3s; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); color: var(--text-primary); border-left: 3px solid var(--accent-primary); }
+        .main-content { margin-left: 280px; padding: 32px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-4px); }
+        .upload-area { border: 2px dashed var(--border-color); border-radius: 16px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover { border-color: var(--accent-primary); background: rgba(59,130,246,0.05); }
+        .file-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header"><div class="d-flex align-items-center gap-2"><i class="bi bi-lightning-charge-fill" style="font-size: 28px; color: var(--accent-primary);"></i><h3 class="mb-0">TESSL</h3></div><p class="text-secondary mb-0 small">Welcome, {{ username }}</p></div>
+    <a href="#" class="nav-item active" data-tab="files"><i class="bi bi-folder2"></i> My Files</a>
+    <a href="#" class="nav-item" data-tab="servers"><i class="bi bi-hdd-stack"></i> My Servers</a>
+    <a href="#" class="nav-item" data-tab="account"><i class="bi bi-person"></i> Account</a>
+    <a href="/logout" class="nav-item"><i class="bi bi-box-arrow-right"></i> Logout</a>
+</div>
+<div class="main-content">
+    <div id="files-tab" class="tab-content active">
+        <div class="d-flex justify-content-between align-items-center mb-4"><h2><i class="bi bi-cloud-arrow-up"></i> My Storage</h2><div class="text-end"><small class="text-secondary">Used: {{ storage_used }} / {{ storage_limit }}</small><div class="progress" style="height: 8px; width: 200px;"><div class="progress-bar bg-primary" style="width: {{ storage_percent }}%"></div></div></div></div>
+        <div class="upload-area" id="dropZone"><i class="bi bi-cloud-upload" style="font-size: 48px;"></i><h5 class="mt-3">Drag & Drop Files Here</h5><p class="text-secondary">or click to browse</p><input type="file" id="fileInput" multiple style="display: none;"></div>
+        <div class="d-flex justify-content-between align-items-center mt-4 mb-3"><h5><i class="bi bi-files"></i> My Files</h5><button class="btn btn-sm btn-outline-secondary" onclick="createFolder()"><i class="bi bi-folder-plus"></i> New Folder</button></div>
+        <div id="fileList"></div>
+    </div>
+    <div id="servers-tab" class="tab-content" style="display: none;">
+        <h3><i class="bi bi-hdd-stack"></i> My Servers</h3>
+        <div class="row mt-3">{% for server in servers %}<div class="col-md-6 mb-3"><div class="stat-card"><h5>{{ server.name }}</h5><p class="text-secondary mb-1">RAM: {{ server.ram }} MB | CPU: {{ server.cpu }}% | Disk: {{ server.disk }} MB</p><a href="/console/{{ server.owner }}/{{ server.name }}" class="btn btn-sm btn-primary">Open Console</a></div></div>{% else %}<p class="text-secondary">No servers found. Contact admin to create one.</p>{% endfor %}</div>
+    </div>
+    <div id="account-tab" class="tab-content" style="display: none;">
+        <div class="stat-card" style="max-width: 500px;"><h4><i class="bi bi-person-circle"></i> Account Settings</h4>
+        <form method="POST" action="/account"><div class="mb-3"><label class="form-label">Current Password</label><input type="password" name="current_password" class="form-control" required></div><div class="mb-3"><label class="form-label">New Password</label><input type="password" name="new_password" class="form-control" required></div><div class="mb-3"><label class="form-label">Confirm Password</label><input type="password" name="confirm_password" class="form-control" required></div><button type="submit" class="btn btn-primary">Update Password</button></form></div>
+    </div>
+</div>
+<script>let currentPath='';async function loadFiles(){const res=await fetch(`/api/files/list?path=${encodeURIComponent(currentPath)}`);const data=await res.json();if(!data.success)return;const container=document.getElementById('fileList');container.innerHTML='';if(currentPath){container.innerHTML+=`<div class="file-item" onclick="navigateUp()"><span><i class="bi bi-arrow-return-left"></i> ..</span></div>`;}for(const item of data.items){const icon=item.is_dir?'bi-folder-fill':'bi-file-earmark';const color=item.is_dir?'#3b82f6':'#8b5cf6';container.innerHTML+=`<div class="file-item"><div onclick="${item.is_dir?`navigateTo('${item.name}')`:''}" style="flex:1;cursor:${item.is_dir?'pointer':'default'}"><i class="bi ${icon}" style="color:${color};margin-right:12px;"></i>${item.name}<small class="text-secondary ms-3">${item.size_formatted}</small></div><div><button class="btn btn-sm btn-danger" onclick="deleteItem('${item.name}')"><i class="bi bi-trash"></i></button></div></div>`;}}function navigateTo(dir){currentPath=currentPath?`${currentPath}/${dir}`:dir;loadFiles();}function navigateUp(){const parts=currentPath.split('/');parts.pop();currentPath=parts.join('/');loadFiles();}async function deleteItem(name){if(!confirm(`Delete ${name}?`))return;const res=await fetch('/api/files/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:currentPath,name:name})});const data=await res.json();if(data.success)loadFiles();else alert(data.error);}async function createFolder(){let name=prompt('Folder name:');if(!name)return;const res=await fetch('/api/files/create_folder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:currentPath,name:name})});const data=await res.json();if(data.success)loadFiles();else alert(data.error);}const dropZone=document.getElementById('dropZone');const fileInput=document.getElementById('fileInput');dropZone.addEventListener('click',()=>fileInput.click());dropZone.addEventListener('dragover',(e)=>{e.preventDefault();dropZone.style.borderColor='#3b82f6';});dropZone.addEventListener('dragleave',()=>{dropZone.style.borderColor='#1e293b';});dropZone.addEventListener('drop',async(e)=>{e.preventDefault();dropZone.style.borderColor='#1e293b';const files=e.dataTransfer.files;for(const file of files)await uploadFile(file);});fileInput.addEventListener('change',async(e)=>{for(const file of e.target.files)await uploadFile(file);fileInput.value='';});async function uploadFile(file){const formData=new FormData();formData.append('file',file);formData.append('path',currentPath);const res=await fetch('/api/files/upload',{method:'POST',body:formData});const data=await res.json();if(data.success)loadFiles();else alert(data.error);}document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',(e)=>{e.preventDefault();const tab=item.dataset.tab;document.querySelectorAll('.tab-content').forEach(t=>t.style.display='none');document.getElementById(`${tab}-tab`).style.display='block';document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');if(tab==='files')loadFiles();});});loadFiles();</script>
+</body>
+</html>
