@@ -2,27 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard | {{ username }}</title>
+    <title>TESSL Admin | Enterprise Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS Framework -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Xterm.js for Terminal -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
     
     <style>
         :root {
-            --bg-dark: #0a0e17;
-            --bg-darker: #06090f;
-            --surface: #131823;
-            --card: #1a2232;
-            --accent: #3b82f6;
-            --accent-glow: rgba(59,130,246,0.3);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --text-primary: #f0f4f8;
+            --bg-dark: #0a0e1a;
+            --bg-card: #0f1420;
+            --bg-sidebar: #0b0f17;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
-            --border: #2d3748;
+            --border-color: #1e293b;
         }
 
         * {
@@ -36,277 +44,227 @@
             font-family: 'Inter', sans-serif;
             color: var(--text-primary);
             overflow: hidden;
-            height: 100vh;
         }
 
         /* Sidebar */
         .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
             width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
             height: 100vh;
-            background: var(--bg-darker);
-            border-right: 1px solid var(--border);
-            padding: 20px;
+            padding: 24px 0;
+            overflow-y: auto;
+            transition: all 0.3s;
             z-index: 100;
-            backdrop-filter: blur(20px);
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
         }
 
         .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, var(--accent), #8b5cf6);
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 0 20px var(--accent-glow);
+            font-size: 20px;
         }
 
-        .logo-text {
-            font-size: 20px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff, var(--accent));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+        .logo-text h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin: 0;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 14px 16px;
-            margin: 8px 0;
-            border-radius: 12px;
+            gap: 12px;
+            padding: 12px 24px;
+            margin: 4px 12px;
+            border-radius: 10px;
             color: var(--text-secondary);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            cursor: pointer;
         }
 
         .nav-item:hover, .nav-item.active {
-            background: var(--surface);
+            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
             color: var(--text-primary);
         }
 
-        .nav-item.active {
-            border-left: 3px solid var(--accent);
+        .nav-item i {
+            font-size: 20px;
         }
 
         /* Main Content */
         .main-content {
             margin-left: 280px;
+            padding: 24px;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Top Bar */
-        .top-bar {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Terminal Sidebar */
-        .terminal-sidebar {
-            position: fixed;
-            right: -400px;
-            top: 0;
-            width: 400px;
-            height: 100vh;
-            background: var(--bg-darker);
-            border-left: 1px solid var(--border);
-            z-index: 200;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .terminal-sidebar.open {
-            right: 0;
-        }
-
-        .terminal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .terminal-content {
-            flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            background: #0a0e17;
         }
 
-        .terminal-line {
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            opacity: 0;
-            animation: fadeIn 0.3s ease forwards;
-        }
-
-        .terminal-line.prompt {
-            color: var(--success);
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        /* Stats Widget */
-        .stats-widget {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            padding: 20px 30px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-        }
-
+        /* Stats Cards */
         .stat-card {
-            background: var(--card);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 15px;
-            transition: all 0.3s ease;
+            padding: 20px;
+            transition: all 0.3s;
         }
 
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
         }
 
-        .stat-title {
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
         }
 
         .stat-value {
             font-size: 28px;
             font-weight: 700;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
-        /* Server Grid */
-        .servers-grid {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
+        /* Terminal Panel */
+        .terminal-panel {
+            background: #0a0a0a;
+            border-radius: 12px;
+            border: 1px solid #2a2a2a;
+            overflow: hidden;
         }
 
-        .server-card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 12px 16px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .server-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        .window-controls {
+            display: flex;
+            gap: 8px;
         }
 
-        .server-status {
-            display: inline-flex;
+        .window-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .window-btn.close { background: #ff5f56; }
+        .window-btn.minimize { background: #ffbd2e; }
+        .window-btn.maximize { background: #27c93f; }
+
+        .terminal-title {
+            display: flex;
             align-items: center;
             gap: 8px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
         }
 
-        .server-status.online {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
+        .terminal-title i {
+            color: var(--accent-success);
+            font-size: 10px;
         }
 
-        .server-status.offline {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
+        #terminal {
+            height: 400px;
+            padding: 12px;
         }
 
-        .server-status.online::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        /* Terminal Toggle Button */
-        .terminal-toggle {
-            background: var(--card);
-            border: 1px solid var(--border);
+        /* Tables */
+        .table-custom {
+            background: var(--bg-card);
             border-radius: 12px;
-            padding: 10px 20px;
+            overflow: hidden;
+        }
+
+        .table-custom th, .table-custom td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, var(--accent-danger), #dc2626);
+        }
+
+        .badge-user {
+            background: var(--border-color);
+        }
+
+        /* Modals */
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .form-control, .form-select {
+            background: rgba(26, 34, 54, 0.8);
+            border: 1px solid var(--border-color);
             color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .terminal-toggle:hover {
-            background: var(--accent);
-            border-color: var(--accent);
+        .form-control:focus, .form-select:focus {
+            background: rgba(26, 34, 54, 1);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* Progress */
+        .progress-custom {
+            background: var(--border-color);
+            border-radius: 10px;
             height: 8px;
+            overflow: hidden;
         }
 
-        ::-webkit-scrollbar-track {
-            background: var(--surface);
+        .progress-fill {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent);
-        }
-
-        /* Mobile */
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
+                position: fixed;
+                z-index: 1000;
             }
             .sidebar.open {
                 transform: translateX(0);
@@ -314,277 +272,723 @@
             .main-content {
                 margin-left: 0;
             }
-            .stats-widget {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .terminal-sidebar {
-                width: 100%;
-            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-    <div class="logo">
-        <div class="logo-icon"><i class="bi bi-cpu"></i></div>
-        <div class="logo-text">AntraxPanel</div>
+    <div class="sidebar-header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <div class="logo-text">
+                <h3>TESSL</h3>
+                <p>Enterprise Dashboard</p>
+            </div>
+        </div>
     </div>
-    <a href="#" class="nav-item active">
-        <i class="bi bi-grid-3x3-gap-fill"></i>
-        <span>Dashboard</span>
-    </a>
-    <a href="{{ url_for('account') }}" class="nav-item">
-        <i class="bi bi-person-circle"></i>
-        <span>Account</span>
-    </a>
-    <a href="{{ url_for('settings') }}" class="nav-item">
+    
+    <div class="nav-item active" data-tab="overview">
+        <i class="bi bi-speedometer2"></i>
+        <span>Overview</span>
+    </div>
+    <div class="nav-item" data-tab="terminal">
+        <i class="bi bi-terminal"></i>
+        <span>Terminal</span>
+    </div>
+    <div class="nav-item" data-tab="users">
+        <i class="bi bi-people"></i>
+        <span>Users</span>
+    </div>
+    <div class="nav-item" data-tab="servers">
+        <i class="bi bi-hdd-stack"></i>
+        <span>Servers</span>
+    </div>
+    <div class="nav-item" data-tab="settings">
         <i class="bi bi-gear"></i>
         <span>Settings</span>
-    </a>
-    {% if username == 'Antrax' %}
-    <a href="{{ url_for('admin') }}" class="nav-item">
-        <i class="bi bi-shield-lock"></i>
-        <span>Admin Panel</span>
-    </a>
-    {% endif %}
-    <div style="flex: 1;"></div>
-    <a href="{{ url_for('logout') }}" class="nav-item" style="color: var(--danger);">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Logout</span>
-    </a>
+    </div>
+    
+    <div style="margin-top: auto; padding: 24px;">
+        <div class="d-flex justify-content-between mb-2">
+            <small class="text-secondary">System Health</small>
+            <small class="text-secondary" id="health-percent">98%</small>
+        </div>
+        <div class="progress-custom">
+            <div class="progress-fill" id="health-bar" style="width: 98%"></div>
+        </div>
+        <div class="mt-3">
+            <a href="/logout" class="btn btn-outline-danger w-100">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+    </div>
 </div>
 
 <div class="main-content">
-    <div class="top-bar">
-        <button class="btn btn-dark" id="mobileMenuToggle" style="display: none;">
-            <i class="bi bi-list"></i>
-        </button>
-        <div>
-            <h5 style="margin: 0;">Welcome back, <span style="color: var(--accent);">{{ username }}</span></h5>
-            <small class="text-secondary">Your infrastructure at a glance</small>
-        </div>
-        <button class="terminal-toggle" id="terminalToggle">
-            <i class="bi bi-terminal"></i> Open Terminal
-        </button>
-    </div>
-
-    <div class="stats-widget" id="statsWidget">
-        <div class="stat-card">
-            <div class="stat-title">CPU Usage</div>
-            <div class="stat-value" id="cpuValue">0%</div>
-            <div class="progress mt-2" style="height: 6px;">
-                <div class="progress-bar" id="cpuBar" style="width: 0%"></div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Memory Usage</div>
-            <div class="stat-value" id="memValue">0 GB</div>
-            <div class="progress mt-2" style="height: 6px;">
-                <div class="progress-bar bg-success" id="memBar" style="width: 0%"></div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Disk Usage</div>
-            <div class="stat-value" id="diskValue">0 GB</div>
-            <div class="progress mt-2" style="height: 6px;">
-                <div class="progress-bar bg-warning" id="diskBar" style="width: 0%"></div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Active Processes</div>
-            <div class="stat-value" id="processCount">0</div>
-            <small class="text-secondary">System running</small>
-        </div>
-    </div>
-
-    <div class="servers-grid">
-        {% for server in servers %}
-        <div class="server-card" onclick="window.location.href='{{ url_for('console', owner=server.owner, server_name=server.name) }}'">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h6 style="margin: 0;">{{ server.name }}</h6>
-                <span class="server-status {{ server.status|lower }}">{{ server.status }}</span>
-            </div>
-            <div class="mb-2">
-                <small class="text-secondary">RAM: </small>
-                <strong id="ram-{{ loop.index }}">-</strong>
-                <small> / {{ (server.ram|int / 1024)|round(1) if server.ram|int >= 1024 else server.ram ~ 'MB' }}</small>
-            </div>
-            <div class="mb-2">
-                <small class="text-secondary">CPU: </small>
-                <strong id="cpu-{{ loop.index }}">-</strong>
-                <small> / {{ server.cpu }}%</small>
-            </div>
-            <div>
-                <small class="text-secondary">Disk: </small>
-                <strong id="disk-{{ loop.index }}">-</strong>
-                <small> / {{ (server.disk|int / 1024)|round(1) if server.disk|int >= 1024 else server.disk ~ 'MB' }}</small>
-            </div>
-        </div>
-        {% endfor %}
-        {% if servers|length == 0 %}
-        <div class="text-center" style="grid-column: 1/-1; padding: 50px;">
-            <i class="bi bi-server" style="font-size: 64px; color: var(--text-secondary);"></i>
-            <h5 class="mt-3">No servers found</h5>
-            <p class="text-secondary">Contact your administrator to get started.</p>
-        </div>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
         {% endif %}
+    {% endwith %}
+
+    <!-- Overview Tab -->
+    <div id="overview-tab" class="tab-content active">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">Reports</h2>
+                <p class="text-secondary">Timeframe: All-time | People: All</p>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-calendar3"></i> This Month
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="#">Today</a></li>
+                    <li><a class="dropdown-item" href="#">This Week</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">All Time</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon" style="background: rgba(59,130,246,0.1);">
+                            <i class="bi bi-people-fill" style="color: #3b82f6;"></i>
+                        </div>
+                        <span class="badge bg-success">+{{ stats.active_users|default(0) }}</span>
+                    </div>
+                    <div class="stat-value">{{ stats.active_users|default(0) }}/{{ stats.total_users|default(0) }}</div>
+                    <div class="text-secondary">Active Users</div>
+                    <div class="progress-custom mt-2">
+                        <div class="progress-fill" style="width: {{ (stats.active_users/stats.total_users*100)|default(0) if stats.total_users > 0 else 0 }}%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon" style="background: rgba(16,185,129,0.1);">
+                            <i class="bi bi-chat-dots-fill" style="color: #10b981;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">3,298</div>
+                    <div class="text-secondary">Questions Answered</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon" style="background: rgba(139,92,246,0.1);">
+                            <i class="bi bi-clock-history" style="color: #8b5cf6;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">2m 34s</div>
+                    <div class="text-secondary">Avg. Session Length</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon" style="background: rgba(245,158,11,0.1);">
+                            <i class="bi bi-trophy-fill" style="color: #f59e0b;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">86%</div>
+                    <div class="text-secondary">Correct Knowledge</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <h5 class="mb-3"><i class="bi bi-trophy"></i> Resource Usage</h5>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>RAM</span>
+                            <span id="ram-used-text">0</span>
+                        </div>
+                        <div class="progress-custom">
+                            <div class="progress-fill" id="ram-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>CPU</span>
+                            <span id="cpu-used-text">0%</span>
+                        </div>
+                        <div class="progress-custom">
+                            <div class="progress-fill" id="cpu-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Disk</span>
+                            <span id="disk-used-text">0</span>
+                        </div>
+                        <div class="progress-custom">
+                            <div class="progress-fill" id="disk-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <h5 class="mb-3"><i class="bi bi-graph-up"></i> Leaderboard</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Weekend Topics</span>
+                        <span class="badge bg-primary">Food Safety</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Compliance Basics</span>
+                        <span class="badge bg-secondary">Procedures</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Cyber Security</span>
+                        <span class="badge bg-info">Basics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal Tab -->
+    <div id="terminal-tab" class="tab-content" style="display: none;">
+        <div class="terminal-panel">
+            <div class="terminal-header">
+                <div class="window-controls">
+                    <div class="window-btn close"></div>
+                    <div class="window-btn minimize"></div>
+                    <div class="window-btn maximize"></div>
+                </div>
+                <div class="terminal-title">
+                    <i class="bi bi-circle-fill"></i>
+                    <span>ROOT TERMINAL • admin@tessl</span>
+                </div>
+                <div class="ms-auto">
+                    <small class="text-secondary">Python 3.11 | Bash 5.1</small>
+                </div>
+            </div>
+            <div id="terminal"></div>
+        </div>
+        
+        <div class="row mt-3 g-2">
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" onclick="clearTerminal()">
+                    <i class="bi bi-trash"></i> Clear
+                </button>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" onclick="runTestCommand()">
+                    <i class="bi bi-filetype-py"></i> Test Python
+                </button>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" onclick="showHelp()">
+                    <i class="bi bi-question-lg"></i> Help
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="users-tab" class="tab-content" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3><i class="bi bi-people"></i> User Management</h3>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <i class="bi bi-person-plus"></i> Add User
+            </button>
+        </div>
+        
+        <div class="table-custom">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Storage Used</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <i class="bi bi-person-circle me-2"></i>
+                            {{ user.username }}
+                        </td>
+                        <td>
+                            {% if user.username == 'Antrax' or user.role == 'admin' %}
+                            <span class="badge bg-danger">Admin</span>
+                            {% else %}
+                            <span class="badge bg-secondary">User</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.storage_used|default('0 B') }}</td>
+                        <td><span class="badge bg-success">Active</span></td>
+                        <td>
+                            {% if user.username != 'Antrax' %}
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('{{ user.username }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Servers Tab -->
+    <div id="servers-tab" class="tab-content" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3><i class="bi bi-hdd-stack"></i> Server Management</h3>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServerModal">
+                <i class="bi bi-plus-circle"></i> Add Server
+            </button>
+        </div>
+        
+        <div class="table-custom">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <th>Server Name</th>
+                        <th>Owner</th>
+                        <th>RAM</th>
+                        <th>CPU</th>
+                        <th>Disk</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for server in servers %}
+                    <tr>
+                        <td>{{ server.name }}</td>
+                        <td>{{ server.owner }}</td>
+                        <td>{{ server.ram }} MB</td>
+                        <td>{{ server.cpu }}%</td>
+                        <td>{{ server.disk }} MB</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteServer('{{ server.name }}', '{{ server.owner }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-secondary">No servers found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings-tab" class="tab-content" style="display: none;">
+        <h3 class="mb-4"><i class="bi bi-gear"></i> System Settings</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <form method="POST" action="{{ url_for('admin_settings') }}">
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="registrationSwitch" name="registration_enabled" {% if registration_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="registrationSwitch">
+                                    <strong>Registration Enabled</strong>
+                                    <p class="text-secondary mb-0 small">Allow new users to create accounts</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="splitterSwitch" name="splitter_enabled" {% if splitter_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="splitterSwitch">
+                                    <strong>Server Splitting Enabled</strong>
+                                    <p class="text-secondary mb-0 small">Allow users to split server resources</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="terminal-sidebar" id="terminalSidebar">
-    <div class="terminal-header">
-        <h6 style="margin: 0;"><i class="bi bi-terminal"></i> System Terminal</h6>
-        <button class="btn-close btn-close-white" id="closeTerminal"></button>
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Add New User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" id="newUsername" placeholder="Enter username">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="newPassword" placeholder="Enter password">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" id="newRole">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="addUser()">Add User</button>
+            </div>
+        </div>
     </div>
-    <div class="terminal-content" id="terminalContent">
-        <div class="terminal-line prompt">$ Welcome to AntraxPanel Terminal</div>
-        <div class="terminal-line">Type commands or view system logs here...</div>
-        <div class="terminal-line">----------------------------------------</div>
-    </div>
-    <div style="padding: 20px; border-top: 1px solid var(--border);">
-        <div class="input-group">
-            <span class="input-group-text bg-dark text-secondary border-secondary">$</span>
-            <input type="text" class="form-control bg-dark text-white border-secondary" id="terminalInput" placeholder="Enter command...">
+</div>
+
+<!-- Add Server Modal -->
+<div class="modal fade" id="addServerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Add New Server</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Server Name</label>
+                    <input type="text" class="form-control" id="serverName" placeholder="Enter server name">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Owner</label>
+                    <input type="text" class="form-control" id="serverOwner" placeholder="Owner username">
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">RAM (MB)</label>
+                        <input type="number" class="form-control" id="serverRam" value="1024" min="1">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">CPU (%)</label>
+                        <input type="number" class="form-control" id="serverCpu" value="50" min="1">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Disk (MB)</label>
+                        <input type="number" class="form-control" id="serverDisk" value="10240" min="1">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="addServer()">Add Server</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Terminal Sidebar Toggle
-    const terminalSidebar = document.getElementById('terminalSidebar');
-    const terminalToggle = document.getElementById('terminalToggle');
-    const closeTerminal = document.getElementById('closeTerminal');
-
-    terminalToggle.addEventListener('click', () => {
-        terminalSidebar.classList.add('open');
-    });
-
-    closeTerminal.addEventListener('click', () => {
-        terminalSidebar.classList.remove('open');
-    });
-
-    // Mobile menu
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-    const sidebar = document.getElementById('sidebar');
-
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
+    // ==================== TERMINAL ====================
+    let term;
+    let fitAddon;
+    
+    function initTerminal() {
+        const terminalElement = document.getElementById('terminal');
+        if (!terminalElement) return;
+        
+        term = new Terminal({
+            cursorBlink: true,
+            theme: {
+                background: '#0a0a0a',
+                foreground: '#00ff00'
+            },
+            fontSize: 14,
+            fontFamily: 'monospace'
+        });
+        fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+        term.open(terminalElement);
+        fitAddon.fit();
+        
+        term.writeln('\x1b[1;32m═══════════════════════════════════════════\x1b[0m');
+        term.writeln('\x1b[1;33m  TESSL Root Terminal v1.0\x1b[0m');
+        term.writeln('\x1b[1;32m═══════════════════════════════════════════\x1b[0m');
+        term.writeln('');
+        term.write('\x1b[1;36madmin@tessl:~$\x1b[0m ');
+        
+        let currentInput = '';
+        
+        term.onKey(async (e) => {
+            const char = e.key;
+            const code = e.domEvent.keyCode;
+            
+            if (code === 13) { // Enter
+                term.writeln('');
+                await executeCommand(currentInput);
+                term.write('\x1b[1;36madmin@tessl:~$\x1b[0m ');
+                currentInput = '';
+            } else if (code === 8) { // Backspace
+                if (currentInput.length > 0) {
+                    currentInput = currentInput.slice(0, -1);
+                    term.write('\b \b');
+                }
+            } else {
+                currentInput += char;
+                term.write(char);
+            }
         });
     }
-
-    // Real-time system stats
-    async function updateSystemStats() {
+    
+    async function executeCommand(cmd) {
+        cmd = cmd.trim();
+        
+        // Built-in commands
+        if (cmd === 'clear') {
+            term.clear();
+            return;
+        } else if (cmd === 'help') {
+            term.writeln('Available commands:');
+            term.writeln('  ls, cd, pwd, mkdir, rm, cat, echo');
+            term.writeln('  python, python3, pip, apt-get');
+            term.writeln('  clear, help, whoami');
+            return;
+        } else if (cmd === 'whoami') {
+            term.writeln('root');
+            return;
+        } else if (cmd.startsWith('echo ')) {
+            term.writeln(cmd.substring(5));
+            return;
+        }
+        
+        // Send to backend
         try {
-            const response = await fetch('/api/system_stats');
+            const response = await fetch('/api/terminal/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: cmd })
+            });
+            const data = await response.json();
+            if (data.error) {
+                term.writeln('\x1b[1;31mError: ' + data.error + '\x1b[0m');
+            } else {
+                term.writeln(data.output);
+            }
+        } catch (error) {
+            term.writeln('\x1b[1;31mError: ' + error.message + '\x1b[0m');
+        }
+    }
+    
+    function clearTerminal() {
+        if (term) term.clear();
+    }
+    
+    function runTestCommand() {
+        if (term) {
+            term.writeln('');
+            term.writeln('>>> print("Hello from TESSL!")');
+            term.writeln('Hello from TESSL!');
+        }
+    }
+    
+    function showHelp() {
+        if (term) {
+            term.writeln('');
+            term.writeln('TESSL Terminal Help:');
+            term.writeln('  • Use standard Linux commands');
+            term.writeln('  • Python 3.11 available');
+            term.writeln('  • Type "help" for command list');
+        }
+    }
+    
+    // ==================== SYSTEM STATS ====================
+    async function loadSystemStats() {
+        try {
+            const response = await fetch('/api/system/stats');
             const stats = await response.json();
             
-            document.getElementById('cpuValue').textContent = `${stats.cpu.percent}%`;
-            document.getElementById('cpuBar').style.width = `${stats.cpu.percent}%`;
+            document.getElementById('ram-used-text').textContent = `${stats.ram_used} / ${stats.ram_total}`;
+            document.getElementById('ram-bar').style.width = `${stats.ram_percent}%`;
             
-            document.getElementById('memValue').textContent = `${stats.memory.used.toFixed(1)} / ${stats.memory.total.toFixed(1)} GB`;
-            document.getElementById('memBar').style.width = `${stats.memory.percent}%`;
+            document.getElementById('cpu-used-text').textContent = `${stats.cpu}%`;
+            document.getElementById('cpu-bar').style.width = `${stats.cpu}%`;
             
-            document.getElementById('diskValue').textContent = `${stats.disk.used.toFixed(1)} / ${stats.disk.total.toFixed(1)} GB`;
-            document.getElementById('diskBar').style.width = `${stats.disk.percent}%`;
-            
-            document.getElementById('processCount').textContent = stats.processes;
-            
-            // Add to terminal
-            addTerminalLine(`[${new Date().toLocaleTimeString()}] System: CPU ${stats.cpu.percent}% | MEM ${stats.memory.percent}% | DISK ${stats.disk.percent}%`, 'info');
-        } catch(e) {
-            console.error('Failed to fetch stats:', e);
+            document.getElementById('disk-used-text').textContent = `${stats.disk_used} / ${stats.disk_total}`;
+            document.getElementById('disk-bar').style.width = `${stats.disk_percent}%`;
+        } catch (error) {
+            console.error('Error loading stats:', error);
         }
     }
-
-    // Update server stats
-    const servers = {{ servers|tojson|safe }};
     
-    async function updateServerStats() {
-        for (let i = 0; i < servers.length; i++) {
-            const server = servers[i];
-            try {
-                const response = await fetch(`/server_stats/${server.owner}/${server.name}`);
-                const data = await response.json();
-                
-                if (!data.error) {
-                    document.getElementById(`ram-${i+1}`).textContent = data.ram_used;
-                    document.getElementById(`cpu-${i+1}`).textContent = `${data.cpu.toFixed(1)}%`;
-                    document.getElementById(`disk-${i+1}`).textContent = data.disk_used;
-                }
-            } catch(e) {
-                console.error(`Failed to fetch stats for ${server.name}:`, e);
-            }
-        }
-    }
-
-    // Add terminal line
-    function addTerminalLine(text, type = 'normal') {
-        const terminalContent = document.getElementById('terminalContent');
-        const line = document.createElement('div');
-        line.className = 'terminal-line';
-        if (type === 'prompt') line.classList.add('prompt');
-        line.textContent = text;
-        terminalContent.appendChild(line);
-        terminalContent.scrollTop = terminalContent.scrollHeight;
+    // ==================== USER MANAGEMENT ====================
+    async function addUser() {
+        const username = document.getElementById('newUsername').value;
+        const password = document.getElementById('newPassword').value;
+        const role = document.getElementById('newRole').value;
         
-        // Keep only last 100 lines
-        while (terminalContent.children.length > 100) {
-            terminalContent.removeChild(terminalContent.firstChild);
+        if (!username || !password) {
+            alert('Please fill in all fields');
+            return;
         }
-    }
-
-    // Terminal command handling
-    const terminalInput = document.getElementById('terminalInput');
-    terminalInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const command = terminalInput.value.trim();
-            if (command) {
-                addTerminalLine(`$ ${command}`, 'prompt');
-                // Handle basic commands
-                if (command === 'help') {
-                    addTerminalLine('Available commands: stats, clear, servers, uptime');
-                } else if (command === 'stats') {
-                    updateSystemStats();
-                } else if (command === 'clear') {
-                    document.getElementById('terminalContent').innerHTML = '';
-                    addTerminalLine('$ Terminal cleared', 'prompt');
-                } else if (command === 'servers') {
-                    addTerminalLine(`Active servers: ${servers.length}`);
-                    servers.forEach(s => addTerminalLine(`  - ${s.name} (${s.status})`));
-                } else if (command === 'uptime') {
-                    addTerminalLine(`System uptime: ${Math.floor(performance.now() / 1000 / 60)} minutes`);
-                } else if (command) {
-                    addTerminalLine(`Command not found: ${command}. Type 'help' for available commands.`);
-                }
-                terminalInput.value = '';
+        
+        try {
+            const response = await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role })
+            });
+            const data = await response.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error);
             }
+        } catch (error) {
+            alert('Error adding user: ' + error.message);
         }
-    });
-
-    // Initial updates
-    updateSystemStats();
-    updateServerStats();
-    
-    // Set intervals for real-time updates
-    setInterval(updateSystemStats, 3000);
-    setInterval(updateServerStats, 5000);
-    
-    // Show mobile menu button on small screens
-    if (window.innerWidth < 768) {
-        document.getElementById('mobileMenuToggle').style.display = 'block';
     }
     
-    window.addEventListener('resize', () => {
-        const mobileBtn = document.getElementById('mobileMenuToggle');
-        if (window.innerWidth < 768) {
-            mobileBtn.style.display = 'block';
-        } else {
-            mobileBtn.style.display = 'none';
-            sidebar.classList.remove('open');
+    async function deleteUser(username) {
+        if (!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
+        
+        try {
+            const response = await fetch('/api/admin/users', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username })
+            });
+            const data = await response.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            alert('Error deleting user: ' + error.message);
         }
+    }
+    
+    async function addServer() {
+        const name = document.getElementById('serverName').value;
+        const owner = document.getElementById('serverOwner').value;
+        const ram = document.getElementById('serverRam').value;
+        const cpu = document.getElementById('serverCpu').value;
+        const disk = document.getElementById('serverDisk').value;
+        
+        if (!name || !owner) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('server_name', name);
+        formData.append('server_owner', owner);
+        formData.append('server_ram', ram);
+        formData.append('server_cpu', cpu);
+        formData.append('server_disk', disk);
+        formData.append('create_server', 'true');
+        
+        try {
+            const response = await fetch('/admin', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error creating server');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+    
+    async function deleteServer(name, owner) {
+        if (!confirm(`Delete server "${name}"?`)) return;
+        
+        const formData = new FormData();
+        formData.append('old_server_name', name);
+        formData.append('old_owner', owner);
+        formData.append('delete_server_from_modal', 'true');
+        
+        try {
+            const response = await fetch('/admin', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting server');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+    
+    // ==================== TAB SWITCHING ====================
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tab = item.dataset.tab;
+            
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(`${tab}-tab`).style.display = 'block';
+            
+            if (tab === 'terminal' && !term) {
+                setTimeout(initTerminal, 100);
+            }
+        });
+    });
+    
+    // ==================== INITIALIZATION ====================
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSystemStats();
+        setInterval(loadSystemStats, 5000);
+        
+        // Pre-load terminal
+        setTimeout(() => {
+            if (document.getElementById('terminal-tab').style.display !== 'block') {
+                initTerminal();
+            }
+        }, 500);
     });
 </script>
 </body>
