@@ -1,52 +1,755 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>TESSL | {{ username }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg-dark: #0a0e1a; --bg-card: #0f1420; --accent-primary: #3b82f6; --accent-secondary: #8b5cf6; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #1e293b; }
-        body { background: var(--bg-dark); font-family: 'Inter', sans-serif; color: var(--text-primary); }
-        .sidebar { width: 280px; background: #0b0f17; border-right: 1px solid var(--border-color); position: fixed; height: 100vh; padding: 24px 0; }
-        .sidebar-header { padding: 0 24px 24px 24px; border-bottom: 1px solid var(--border-color); }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: var(--text-secondary); text-decoration: none; transition: all 0.3s; cursor: pointer; }
-        .nav-item:hover, .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); color: var(--text-primary); border-left: 3px solid var(--accent-primary); }
-        .main-content { margin-left: 280px; padding: 32px; }
-        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; transition: transform 0.3s; }
-        .stat-card:hover { transform: translateY(-4px); }
-        .upload-area { border: 2px dashed var(--border-color); border-radius: 16px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .upload-area:hover { border-color: var(--accent-primary); background: rgba(59,130,246,0.05); }
-        .file-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } }
-    </style>
+  <meta charset="UTF-8">
+  <title>Dashboard | {{ username }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --background: #0A0E17;
+      --surface: #131823;
+      --sidebar-bg: #0F172A;
+      --card-bg: #1A2232;
+      --card-hover: #212B3F;
+      --text-primary: #F0F4F8;
+      --text-secondary: #94A3B8;
+      --accent-primary: #3B82F6;
+      --accent-secondary: #8B5CF6;
+      --border-color: #2D3748;
+      --gradient-primary: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+      --gradient-success: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+      --gradient-warning: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+      --gradient-error: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--background);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 280px;
+      background: var(--gradient-primary);
+      opacity: 0.05;
+      z-index: -1;
+      border-radius: 0 0 50px 50px;
+    }
+
+    /* --- Sidebar --- */
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      height: 100vh;
+      padding: 30px 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(10px);
+      box-shadow: 5px 0 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 0 30px 30px 30px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .sidebar-brand-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-primary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+    
+    .sidebar-brand h4 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 22px;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+    
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: var(--text-secondary);
+      padding: 16px 30px;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      margin: 4px 0;
+    }
+    
+    .sidebar a:hover {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
+      color: var(--text-primary);
+      border-left: 4px solid var(--accent-primary);
+      padding-left: 34px;
+    }
+    
+    .sidebar a.active {
+      color: var(--text-primary);
+      font-weight: 600;
+      border-left: 4px solid var(--accent-primary);
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);
+      box-shadow: inset 4px 0 20px rgba(59, 130, 246, 0.1);
+    }
+    
+    .sidebar a i {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 25px;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .sidebar-footer .powered-by-text {
+      font-size: 13px;
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      padding: 0 30px;
+    }
+    
+    .sidebar-footer a {
+      padding: 16px 30px;
+      color: var(--error);
+    }
+    
+    .sidebar-footer a:hover {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), transparent);
+      border-left-color: var(--error);
+    }
+
+    /* --- Main Content --- */
+    .content {
+      margin-left: 280px;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    
+    .main-header {
+      margin-bottom: 40px;
+    }
+    
+    .welcome-section {
+      background: var(--gradient-primary);
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .welcome-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1%, transparent 20%);
+      opacity: 0.2;
+    }
+    
+    .welcome-section h3 {
+      font-weight: 700;
+      font-size: 36px;
+      margin-bottom: 10px;
+      color: white;
+    }
+    
+    .welcome-section p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 18px;
+      margin: 0;
+      font-weight: 400;
+    }
+    
+    /* --- Server Cards --- */
+    .server-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 30px;
+      transition: all 0.3s ease;
+      height: 100%;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .server-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .server-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border-color: var(--accent-primary);
+    }
+    
+    .server-card:hover::before {
+      opacity: 1;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 25px;
+    }
+    
+    .card-header h5 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--text-primary);
+      max-width: 70%;
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .status-indicator::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background-color: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-indicator.offline {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    .status-indicator.offline::before {
+      background-color: var(--error);
+      animation: none;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    
+    .server-specs {
+      margin-top: 20px;
+    }
+    
+    .spec-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .spec-item:last-child {
+      border-bottom: none;
+    }
+    
+    .spec-item .spec-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+    
+    .spec-item .spec-label i {
+      color: var(--accent-primary);
+      font-size: 18px;
+      width: 24px;
+    }
+    
+    .spec-item .spec-value {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 16px;
+    }
+    
+    .progress-container {
+      margin-top: 5px;
+    }
+    
+    .progress {
+      height: 6px;
+      background-color: var(--border-color);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      background: var(--gradient-primary);
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    
+    .progress-bar.warning {
+      background: var(--gradient-warning);
+    }
+    
+    .progress-bar.error {
+      background: var(--gradient-error);
+    }
+    
+    /* --- Empty State --- */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .empty-state i {
+      font-size: 64px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    
+    .empty-state p {
+      color: var(--text-secondary);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    /* --- Mobile Navigation --- */
+    .mobile-nav {
+      display: none;
+    }
+    
+    /* --- Responsive Design --- */
+    @media (max-width: 1200px) {
+      .sidebar {
+        width: 240px;
+      }
+      
+      .content {
+        margin-left: 240px;
+        padding: 30px;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 80px;
+        padding: 25px 0;
+      }
+      
+      .sidebar-brand {
+        padding: 0 15px 25px 15px;
+        justify-content: center;
+      }
+      
+      .sidebar-brand h4, .sidebar a span, .sidebar-footer .powered-by-text {
+        display: none;
+      }
+      
+      .sidebar-brand-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+      
+      .sidebar a, .sidebar-footer a {
+        justify-content: center;
+        padding: 16px 0;
+        margin: 4px 10px;
+        border-left: 3px solid transparent;
+      }
+      
+      .sidebar a:hover, .sidebar a.active {
+        border-left-width: 3px;
+        padding-left: 0;
+      }
+      
+      .content {
+        margin-left: 80px;
+        padding: 25px;
+      }
+      
+      .welcome-section h3 {
+        font-size: 28px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .content { 
+        margin-left: 0; 
+        padding: 20px;
+        padding-bottom: 100px;
+      } 
+      
+      .sidebar { 
+        display: none; 
+      }
+      
+      .welcome-section {
+        padding: 30px 20px;
+      }
+      
+      .welcome-section h3 {
+        font-size: 24px;
+      }
+      
+      .welcome-section p {
+        font-size: 16px;
+      }
+      
+      .mobile-nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 80px;
+        background: var(--sidebar-bg);
+        border-top: 1px solid var(--border-color);
+        z-index: 1001;
+        backdrop-filter: blur(20px);
+        padding: 0 20px;
+      }
+      
+      .mobile-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-size: 12px;
+        gap: 6px;
+        padding: 12px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+      
+      .mobile-nav a i {
+        font-size: 22px;
+      }
+      
+      .mobile-nav a.active {
+        color: var(--accent-primary);
+        background: rgba(59, 130, 246, 0.15);
+        transform: translateY(-8px);
+      }
+      
+      .mobile-nav a.logout {
+        color: var(--error);
+      }
+      
+      .mobile-nav a.logout.active {
+        background: rgba(239, 68, 68, 0.15);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .content {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+      
+      .welcome-section {
+        padding: 20px;
+      }
+      
+      .welcome-section h3 {
+        font-size: 20px;
+      }
+      
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .card-header h5 {
+        max-width: 100%;
+      }
+    }
+    
+    /* --- Server Stats Animation --- */
+    .server-card .spec-value {
+      transition: color 0.3s ease;
+    }
+    
+    .server-card.updating .spec-value {
+      color: var(--accent-primary);
+    }
+  </style>
 </head>
 <body>
-<div class="sidebar">
-    <div class="sidebar-header"><div class="d-flex align-items-center gap-2"><i class="bi bi-lightning-charge-fill" style="font-size: 28px; color: var(--accent-primary);"></i><h3 class="mb-0">TESSL</h3></div><p class="text-secondary mb-0 small">Welcome, {{ username }}</p></div>
-    <a href="#" class="nav-item active" data-tab="files"><i class="bi bi-folder2"></i> My Files</a>
-    <a href="#" class="nav-item" data-tab="servers"><i class="bi bi-hdd-stack"></i> My Servers</a>
-    <a href="#" class="nav-item" data-tab="account"><i class="bi bi-person"></i> Account</a>
-    <a href="/logout" class="nav-item"><i class="bi bi-box-arrow-right"></i> Logout</a>
-</div>
-<div class="main-content">
-    <div id="files-tab" class="tab-content active">
-        <div class="d-flex justify-content-between align-items-center mb-4"><h2><i class="bi bi-cloud-arrow-up"></i> My Storage</h2><div class="text-end"><small class="text-secondary">Used: {{ storage_used }} / {{ storage_limit }}</small><div class="progress" style="height: 8px; width: 200px;"><div class="progress-bar bg-primary" style="width: {{ storage_percent }}%"></div></div></div></div>
-        <div class="upload-area" id="dropZone"><i class="bi bi-cloud-upload" style="font-size: 48px;"></i><h5 class="mt-3">Drag & Drop Files Here</h5><p class="text-secondary">or click to browse</p><input type="file" id="fileInput" multiple style="display: none;"></div>
-        <div class="d-flex justify-content-between align-items-center mt-4 mb-3"><h5><i class="bi bi-files"></i> My Files</h5><button class="btn btn-sm btn-outline-secondary" onclick="createFolder()"><i class="bi bi-folder-plus"></i> New Folder</button></div>
-        <div id="fileList"></div>
+
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <i class="bi bi-hdd-stack"></i>
+      </div>
+      <h4>Dashboard</h4>
     </div>
-    <div id="servers-tab" class="tab-content" style="display: none;">
-        <h3><i class="bi bi-hdd-stack"></i> My Servers</h3>
-        <div class="row mt-3">{% for server in servers %}<div class="col-md-6 mb-3"><div class="stat-card"><h5>{{ server.name }}</h5><p class="text-secondary mb-1">RAM: {{ server.ram }} MB | CPU: {{ server.cpu }}% | Disk: {{ server.disk }} MB</p><a href="/console/{{ server.owner }}/{{ server.name }}" class="btn btn-sm btn-primary">Open Console</a></div></div>{% else %}<p class="text-secondary">No servers found. Contact admin to create one.</p>{% endfor %}</div>
+    <a href="{{ url_for('dashboard') }}" class="active"><i class="bi bi-house-door"></i> <span>Dashboard</span></a>
+    <a href="{{ url_for('account') }}"><i class="bi bi-person"></i> <span>Account</span></a>
+    <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i> <span>Settings</span></a>
+    
+    <div class="sidebar-footer">
+      <p class="powered-by-text">Secure Hosting Platform</p>
+      <a href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> <span>Logout</span></a>
     </div>
-    <div id="account-tab" class="tab-content" style="display: none;">
-        <div class="stat-card" style="max-width: 500px;"><h4><i class="bi bi-person-circle"></i> Account Settings</h4>
-        <form method="POST" action="/account"><div class="mb-3"><label class="form-label">Current Password</label><input type="password" name="current_password" class="form-control" required></div><div class="mb-3"><label class="form-label">New Password</label><input type="password" name="new_password" class="form-control" required></div><div class="mb-3"><label class="form-label">Confirm Password</label><input type="password" name="confirm_password" class="form-control" required></div><button type="submit" class="btn btn-primary">Update Password</button></form></div>
+  </div>
+
+  <nav class="mobile-nav">
+    <a href="{{ url_for('dashboard') }}" class="active"><i class="bi bi-house-door"></i> Dashboard</a>
+    <a href="{{ url_for('account') }}"><i class="bi bi-person"></i> Account</a>
+    <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i> Settings</a>
+    <a href="{{ url_for('logout') }}" class="logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </nav>
+
+  <div class="content">
+    <div class="welcome-section">
+      <h3>Welcome to Secure Hosting</h3>
+      <p>Manage your servers and resources with our intuitive platform</p>
     </div>
-</div>
-<script>let currentPath='';async function loadFiles(){const res=await fetch(`/api/files/list?path=${encodeURIComponent(currentPath)}`);const data=await res.json();if(!data.success)return;const container=document.getElementById('fileList');container.innerHTML='';if(currentPath){container.innerHTML+=`<div class="file-item" onclick="navigateUp()"><span><i class="bi bi-arrow-return-left"></i> ..</span></div>`;}for(const item of data.items){const icon=item.is_dir?'bi-folder-fill':'bi-file-earmark';const color=item.is_dir?'#3b82f6':'#8b5cf6';container.innerHTML+=`<div class="file-item"><div onclick="${item.is_dir?`navigateTo('${item.name}')`:''}" style="flex:1;cursor:${item.is_dir?'pointer':'default'}"><i class="bi ${icon}" style="color:${color};margin-right:12px;"></i>${item.name}<small class="text-secondary ms-3">${item.size_formatted}</small></div><div><button class="btn btn-sm btn-danger" onclick="deleteItem('${item.name}')"><i class="bi bi-trash"></i></button></div></div>`;}}function navigateTo(dir){currentPath=currentPath?`${currentPath}/${dir}`:dir;loadFiles();}function navigateUp(){const parts=currentPath.split('/');parts.pop();currentPath=parts.join('/');loadFiles();}async function deleteItem(name){if(!confirm(`Delete ${name}?`))return;const res=await fetch('/api/files/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:currentPath,name:name})});const data=await res.json();if(data.success)loadFiles();else alert(data.error);}async function createFolder(){let name=prompt('Folder name:');if(!name)return;const res=await fetch('/api/files/create_folder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:currentPath,name:name})});const data=await res.json();if(data.success)loadFiles();else alert(data.error);}const dropZone=document.getElementById('dropZone');const fileInput=document.getElementById('fileInput');dropZone.addEventListener('click',()=>fileInput.click());dropZone.addEventListener('dragover',(e)=>{e.preventDefault();dropZone.style.borderColor='#3b82f6';});dropZone.addEventListener('dragleave',()=>{dropZone.style.borderColor='#1e293b';});dropZone.addEventListener('drop',async(e)=>{e.preventDefault();dropZone.style.borderColor='#1e293b';const files=e.dataTransfer.files;for(const file of files)await uploadFile(file);});fileInput.addEventListener('change',async(e)=>{for(const file of e.target.files)await uploadFile(file);fileInput.value='';});async function uploadFile(file){const formData=new FormData();formData.append('file',file);formData.append('path',currentPath);const res=await fetch('/api/files/upload',{method:'POST',body:formData});const data=await res.json();if(data.success)loadFiles();else alert(data.error);}document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',(e)=>{e.preventDefault();const tab=item.dataset.tab;document.querySelectorAll('.tab-content').forEach(t=>t.style.display='none');document.getElementById(`${tab}-tab`).style.display='block';document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');if(tab==='files')loadFiles();});});loadFiles();</script>
+
+    <div class="row">
+      {% if servers|length == 0 %}
+        <div class="col-12">
+          <div class="empty-state">
+            <i class="bi bi-hdd-network"></i>
+            <h4>No servers found</h4>
+            <p>You don't have any servers configured yet. Contact your administrator to get started.</p>
+          </div>
+        </div>
+      {% else %}
+        {% for server in servers %}
+          <div class="col-lg-6 col-xl-4 mb-4">
+            <a class="server-card" data-owner="{{ server.owner }}" data-name="{{ server.name }}" href="{{ url_for('console', owner=server.owner, server_name=server.name) }}">
+              <div class="card-header">
+                <h5>{{ server.name }}</h5>
+                <div class="status-indicator {% if server.status == 'Offline' %}offline{% endif %}">
+                  {{ server.status }}
+                </div>
+              </div>
+              
+              <div class="server-specs">
+                <div class="spec-item">
+                  <div class="spec-label">
+                    <i class="bi bi-memory"></i>
+                    <span>RAM Usage</span>
+                  </div>
+                  <div class="spec-value ram-usage">...</div>
+                </div>
+                <div class="progress-container">
+                  <div class="progress">
+                    <div class="progress-bar ram-progress" style="width: 0%"></div>
+                  </div>
+                </div>
+                
+                <div class="spec-item">
+                  <div class="spec-label">
+                    <i class="bi bi-cpu"></i>
+                    <span>CPU Usage</span>
+                  </div>
+                  <div class="spec-value cpu-usage">...</div>
+                </div>
+                <div class="progress-container">
+                  <div class="progress">
+                    <div class="progress-bar cpu-progress" style="width: 0%"></div>
+                  </div>
+                </div>
+                
+                <div class="spec-item">
+                  <div class="spec-label">
+                    <i class="bi bi-hdd"></i>
+                    <span>Disk Usage</span>
+                  </div>
+                  <div class="spec-value disk-usage">...</div>
+                </div>
+                <div class="progress-container">
+                  <div class="progress">
+                    <div class="progress-bar disk-progress" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const updateAllServerStats = () => {
+        const serverCards = document.querySelectorAll('.server-card');
+
+        serverCards.forEach(card => {
+          const owner = card.dataset.owner;
+          const name = card.dataset.name;
+          const url = `/server_stats/${owner}/${name}`;
+
+          // Add updating class
+          card.classList.add('updating');
+
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              if (data.error) {
+                console.error(`Error fetching stats for ${name}:`, data.error);
+                return;
+              }
+
+              // Update RAM
+              const ramValue = card.querySelector('.ram-usage');
+              const ramProgress = card.querySelector('.ram-progress');
+              if (ramValue && ramProgress) {
+                ramValue.textContent = `${data.ram_used} / ${data.ram_limit}`;
+                const ramPercent = Math.min(100, (parseFloat(data.ram_used) / parseFloat(data.ram_limit)) * 100);
+                ramProgress.style.width = `${ramPercent}%`;
+                
+                if (ramPercent > 80) {
+                  ramProgress.classList.add('error');
+                } else if (ramPercent > 60) {
+                  ramProgress.classList.add('warning');
+                }
+              }
+
+              // Update CPU
+              const cpuValue = card.querySelector('.cpu-usage');
+              const cpuProgress = card.querySelector('.cpu-progress');
+              if (cpuValue && cpuProgress) {
+                cpuValue.textContent = `${data.cpu.toFixed(1)}% / ${data.cpu_limit}%`;
+                const cpuPercent = Math.min(100, (data.cpu / parseFloat(data.cpu_limit)) * 100);
+                cpuProgress.style.width = `${cpuPercent}%`;
+                
+                if (cpuPercent > 80) {
+                  cpuProgress.classList.add('error');
+                } else if (cpuPercent > 60) {
+                  cpuProgress.classList.add('warning');
+                }
+              }
+
+              // Update Disk
+              const diskValue = card.querySelector('.disk-usage');
+              const diskProgress = card.querySelector('.disk-progress');
+              if (diskValue && diskProgress) {
+                diskValue.textContent = `${data.disk_used} / ${data.disk_limit}`;
+                const diskPercent = Math.min(100, (parseFloat(data.disk_used) / parseFloat(data.disk_limit)) * 100);
+                diskProgress.style.width = `${diskPercent}%`;
+                
+                if (diskPercent > 80) {
+                  diskProgress.classList.add('error');
+                } else if (diskPercent > 60) {
+                  diskProgress.classList.add('warning');
+                }
+              }
+
+              // Remove updating class
+              setTimeout(() => {
+                card.classList.remove('updating');
+              }, 300);
+            })
+            .catch(error => {
+              console.error(`Failed to fetch stats for server ${name}:`, error);
+              card.classList.remove('updating');
+            });
+        });
+      };
+
+      // Initial update
+      updateAllServerStats();
+      
+      // Set up interval for updates
+      setInterval(updateAllServerStats, 5000);
+      
+      // Add hover effects for server cards
+      document.querySelectorAll('.server-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'translateY(-8px)';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'translateY(0)';
+        });
+      });
+    });
+  </script>
 </body>
 </html>
