@@ -1,0 +1,4 @@
+Flask==2.3.3
+psutil==5.9.6
+GPUtil==1.4.0
+Werkzeug==2.3.7
