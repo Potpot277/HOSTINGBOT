@@ -5,15 +5,11 @@
     <title>TESSL Admin | Enterprise Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- CSS Framework -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Xterm.js for Terminal -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
     <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
@@ -26,27 +22,17 @@
             --accent-primary: #3b82f6;
             --accent-secondary: #8b5cf6;
             --accent-success: #10b981;
-            --accent-warning: #f59e0b;
-            --accent-danger: #ef4444;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --border-color: #1e293b;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg-dark);
             font-family: 'Inter', sans-serif;
             color: var(--text-primary);
             overflow: hidden;
         }
-
-        /* Sidebar */
         .sidebar {
             width: 280px;
             background: var(--bg-sidebar);
@@ -55,22 +41,18 @@
             height: 100vh;
             padding: 24px 0;
             overflow-y: auto;
-            transition: all 0.3s;
             z-index: 100;
         }
-
         .sidebar-header {
             padding: 0 24px 24px 24px;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 20px;
         }
-
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
         .logo-icon {
             width: 40px;
             height: 40px;
@@ -81,19 +63,8 @@
             justify-content: center;
             font-size: 20px;
         }
-
-        .logo-text h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .logo-text p {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-
+        .logo-text h3 { font-size: 18px; font-weight: 700; margin: 0; }
+        .logo-text p { font-size: 11px; color: var(--text-secondary); margin: 0; }
         .nav-item {
             display: flex;
             align-items: center;
@@ -106,25 +77,17 @@
             transition: all 0.3s;
             cursor: pointer;
         }
-
         .nav-item:hover, .nav-item.active {
             background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
             color: var(--text-primary);
         }
-
-        .nav-item i {
-            font-size: 20px;
-        }
-
-        /* Main Content */
+        .nav-item i { font-size: 20px; }
         .main-content {
             margin-left: 280px;
             padding: 24px;
             height: 100vh;
             overflow-y: auto;
         }
-
-        /* Stats Cards */
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -132,12 +95,7 @@
             padding: 20px;
             transition: all 0.3s;
         }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent-primary);
-        }
-
+        .stat-card:hover { transform: translateY(-4px); border-color: var(--accent-primary); }
         .stat-icon {
             width: 48px;
             height: 48px;
@@ -147,21 +105,13 @@
             justify-content: center;
             font-size: 24px;
         }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            margin-top: 12px;
-        }
-
-        /* Terminal Panel */
+        .stat-value { font-size: 28px; font-weight: 700; margin-top: 12px; }
         .terminal-panel {
             background: #0a0a0a;
             border-radius: 12px;
             border: 1px solid #2a2a2a;
             overflow: hidden;
         }
-
         .terminal-header {
             background: #1a1a1a;
             padding: 12px 16px;
@@ -170,22 +120,11 @@
             align-items: center;
             gap: 12px;
         }
-
-        .window-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .window-btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
+        .window-controls { display: flex; gap: 8px; }
+        .window-btn { width: 12px; height: 12px; border-radius: 50%; }
         .window-btn.close { background: #ff5f56; }
         .window-btn.minimize { background: #ffbd2e; }
         .window-btn.maximize { background: #27c93f; }
-
         .terminal-title {
             display: flex;
             align-items: center;
@@ -193,99 +132,55 @@
             font-size: 13px;
             font-weight: 600;
         }
-
-        .terminal-title i {
-            color: var(--accent-success);
-            font-size: 10px;
-        }
-
-        #terminal {
-            height: 400px;
-            padding: 12px;
-        }
-
-        /* Tables */
+        .terminal-title i { color: var(--accent-success); font-size: 10px; }
+        #terminal { height: 400px; padding: 12px; }
         .table-custom {
             background: var(--bg-card);
             border-radius: 12px;
             overflow: hidden;
         }
-
         .table-custom th, .table-custom td {
             padding: 12px 16px;
             border-bottom: 1px solid var(--border-color);
         }
-
-        .badge-admin {
-            background: linear-gradient(135deg, var(--accent-danger), #dc2626);
-        }
-
-        .badge-user {
-            background: var(--border-color);
-        }
-
-        /* Modals */
         .modal-content {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 16px;
         }
-
         .form-control, .form-select {
             background: rgba(26, 34, 54, 0.8);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
         }
-
         .form-control:focus, .form-select:focus {
             background: rgba(26, 34, 54, 1);
             border-color: var(--accent-primary);
             color: var(--text-primary);
             box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
         }
-
-        /* Progress */
         .progress-custom {
             background: var(--border-color);
             border-radius: 10px;
             height: 8px;
             overflow: hidden;
         }
-
         .progress-fill {
             background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
             height: 100%;
             border-radius: 10px;
             transition: width 0.3s;
         }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                position: fixed;
-                z-index: 1000;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-            }
+            .sidebar { transform: translateX(-100%); position: fixed; z-index: 1000; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
         }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        .badge-admin { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .badge-user { background: #475569; }
     </style>
 </head>
 <body>
@@ -293,9 +188,7 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="logo">
-            <div class="logo-icon">
-                <i class="bi bi-lightning-charge-fill"></i>
-            </div>
+            <div class="logo-icon"><i class="bi bi-lightning-charge-fill"></i></div>
             <div class="logo-text">
                 <h3>TESSL</h3>
                 <p>Enterprise Dashboard</p>
@@ -304,24 +197,19 @@
     </div>
     
     <div class="nav-item active" data-tab="overview">
-        <i class="bi bi-speedometer2"></i>
-        <span>Overview</span>
+        <i class="bi bi-speedometer2"></i> <span>Overview</span>
     </div>
     <div class="nav-item" data-tab="terminal">
-        <i class="bi bi-terminal"></i>
-        <span>Terminal</span>
+        <i class="bi bi-terminal"></i> <span>Terminal</span>
     </div>
     <div class="nav-item" data-tab="users">
-        <i class="bi bi-people"></i>
-        <span>Users</span>
+        <i class="bi bi-people"></i> <span>Users</span>
     </div>
     <div class="nav-item" data-tab="servers">
-        <i class="bi bi-hdd-stack"></i>
-        <span>Servers</span>
+        <i class="bi bi-hdd-stack"></i> <span>Servers</span>
     </div>
     <div class="nav-item" data-tab="settings">
-        <i class="bi bi-gear"></i>
-        <span>Settings</span>
+        <i class="bi bi-gear"></i> <span>Settings</span>
     </div>
     
     <div style="margin-top: auto; padding: 24px;">
@@ -329,19 +217,14 @@
             <small class="text-secondary">System Health</small>
             <small class="text-secondary" id="health-percent">98%</small>
         </div>
-        <div class="progress-custom">
-            <div class="progress-fill" id="health-bar" style="width: 98%"></div>
-        </div>
+        <div class="progress-custom"><div class="progress-fill" id="health-bar" style="width: 98%"></div></div>
         <div class="mt-3">
-            <a href="/logout" class="btn btn-outline-danger w-100">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
+            <a href="/logout" class="btn btn-outline-danger w-100"><i class="bi bi-box-arrow-right"></i> Logout</a>
         </div>
     </div>
 </div>
 
 <div class="main-content">
-    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -356,70 +239,40 @@
     <!-- Overview Tab -->
     <div id="overview-tab" class="tab-content active">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="mb-1">Reports</h2>
-                <p class="text-secondary">Timeframe: All-time | People: All</p>
-            </div>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="bi bi-calendar3"></i> This Month
-                </button>
-                <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Week</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">All Time</a></li>
-                </ul>
-            </div>
+            <div><h2 class="mb-1">Dashboard</h2><p class="text-secondary">Welcome back, {{ username }}</p></div>
         </div>
         
         <div class="row g-3 mb-4">
             <div class="col-md-3">
                 <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon" style="background: rgba(59,130,246,0.1);">
-                            <i class="bi bi-people-fill" style="color: #3b82f6;"></i>
-                        </div>
+                    <div class="d-flex justify-content-between">
+                        <div class="stat-icon" style="background: rgba(59,130,246,0.1);"><i class="bi bi-people-fill" style="color: #3b82f6;"></i></div>
                         <span class="badge bg-success">+{{ stats.active_users|default(0) }}</span>
                     </div>
                     <div class="stat-value">{{ stats.active_users|default(0) }}/{{ stats.total_users|default(0) }}</div>
                     <div class="text-secondary">Active Users</div>
-                    <div class="progress-custom mt-2">
-                        <div class="progress-fill" style="width: {{ (stats.active_users/stats.total_users*100)|default(0) if stats.total_users > 0 else 0 }}%"></div>
-                    </div>
+                    <div class="progress-custom mt-2"><div class="progress-fill" style="width: {{ (stats.active_users/stats.total_users*100)|default(0) if stats.total_users > 0 else 0 }}%"></div></div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon" style="background: rgba(16,185,129,0.1);">
-                            <i class="bi bi-chat-dots-fill" style="color: #10b981;"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value">3,298</div>
-                    <div class="text-secondary">Questions Answered</div>
+                    <div class="stat-icon" style="background: rgba(16,185,129,0.1);"><i class="bi bi-hdd-stack" style="color: #10b981;"></i></div>
+                    <div class="stat-value">{{ servers|length }}</div>
+                    <div class="text-secondary">Total Servers</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon" style="background: rgba(139,92,246,0.1);">
-                            <i class="bi bi-clock-history" style="color: #8b5cf6;"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value">2m 34s</div>
-                    <div class="text-secondary">Avg. Session Length</div>
+                    <div class="stat-icon" style="background: rgba(139,92,246,0.1);"><i class="bi bi-memory" style="color: #8b5cf6;"></i></div>
+                    <div class="stat-value">{{ stats.total_ram|default('0 MB') }}</div>
+                    <div class="text-secondary">RAM Allocated</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon" style="background: rgba(245,158,11,0.1);">
-                            <i class="bi bi-trophy-fill" style="color: #f59e0b;"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value">86%</div>
-                    <div class="text-secondary">Correct Knowledge</div>
+                    <div class="stat-icon" style="background: rgba(245,158,11,0.1);"><i class="bi bi-cpu" style="color: #f59e0b;"></i></div>
+                    <div class="stat-value">{{ stats.total_cpu|default(0) }}%</div>
+                    <div class="text-secondary">CPU Allocated</div>
                 </div>
             </div>
         </div>
@@ -427,50 +280,27 @@
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="stat-card">
-                    <h5 class="mb-3"><i class="bi bi-trophy"></i> Resource Usage</h5>
+                    <h5 class="mb-3"><i class="bi bi-graph-up"></i> System Resources</h5>
                     <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>RAM</span>
-                            <span id="ram-used-text">0</span>
-                        </div>
-                        <div class="progress-custom">
-                            <div class="progress-fill" id="ram-bar" style="width: 0%"></div>
-                        </div>
+                        <div class="d-flex justify-content-between mb-1"><span>RAM</span><span id="ram-used-text">0</span></div>
+                        <div class="progress-custom"><div class="progress-fill" id="ram-bar" style="width: 0%"></div></div>
                     </div>
                     <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>CPU</span>
-                            <span id="cpu-used-text">0%</span>
-                        </div>
-                        <div class="progress-custom">
-                            <div class="progress-fill" id="cpu-bar" style="width: 0%"></div>
-                        </div>
+                        <div class="d-flex justify-content-between mb-1"><span>CPU</span><span id="cpu-used-text">0%</span></div>
+                        <div class="progress-custom"><div class="progress-fill" id="cpu-bar" style="width: 0%"></div></div>
                     </div>
                     <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Disk</span>
-                            <span id="disk-used-text">0</span>
-                        </div>
-                        <div class="progress-custom">
-                            <div class="progress-fill" id="disk-bar" style="width: 0%"></div>
-                        </div>
+                        <div class="d-flex justify-content-between mb-1"><span>Disk</span><span id="disk-used-text">0</span></div>
+                        <div class="progress-custom"><div class="progress-fill" id="disk-bar" style="width: 0%"></div></div>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="stat-card">
-                    <h5 class="mb-3"><i class="bi bi-graph-up"></i> Leaderboard</h5>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Weekend Topics</span>
-                        <span class="badge bg-primary">Food Safety</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Compliance Basics</span>
-                        <span class="badge bg-secondary">Procedures</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>Cyber Security</span>
-                        <span class="badge bg-info">Basics</span>
+                    <h5 class="mb-3"><i class="bi bi-trophy"></i> Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="bi bi-person-plus"></i> Add User</button>
+                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addServerModal"><i class="bi bi-hdd-stack"></i> Add Server</button>
                     </div>
                 </div>
             </div>
@@ -481,38 +311,16 @@
     <div id="terminal-tab" class="tab-content" style="display: none;">
         <div class="terminal-panel">
             <div class="terminal-header">
-                <div class="window-controls">
-                    <div class="window-btn close"></div>
-                    <div class="window-btn minimize"></div>
-                    <div class="window-btn maximize"></div>
-                </div>
-                <div class="terminal-title">
-                    <i class="bi bi-circle-fill"></i>
-                    <span>ROOT TERMINAL • admin@tessl</span>
-                </div>
-                <div class="ms-auto">
-                    <small class="text-secondary">Python 3.11 | Bash 5.1</small>
-                </div>
+                <div class="window-controls"><div class="window-btn close"></div><div class="window-btn minimize"></div><div class="window-btn maximize"></div></div>
+                <div class="terminal-title"><i class="bi bi-circle-fill"></i> <span>ROOT TERMINAL • admin@tessl</span></div>
+                <div class="ms-auto"><small class="text-secondary">Python 3.11 | Bash</small></div>
             </div>
             <div id="terminal"></div>
         </div>
-        
         <div class="row mt-3 g-2">
-            <div class="col-auto">
-                <button class="btn btn-sm btn-outline-secondary" onclick="clearTerminal()">
-                    <i class="bi bi-trash"></i> Clear
-                </button>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-sm btn-outline-secondary" onclick="runTestCommand()">
-                    <i class="bi bi-filetype-py"></i> Test Python
-                </button>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-sm btn-outline-secondary" onclick="showHelp()">
-                    <i class="bi bi-question-lg"></i> Help
-                </button>
-            </div>
+            <div class="col-auto"><button class="btn btn-sm btn-outline-secondary" onclick="clearTerminal()"><i class="bi bi-trash"></i> Clear</button></div>
+            <div class="col-auto"><button class="btn btn-sm btn-outline-secondary" onclick="runTestCommand()"><i class="bi bi-filetype-py"></i> Test Python</button></div>
+            <div class="col-auto"><button class="btn btn-sm btn-outline-secondary" onclick="showHelp()"><i class="bi bi-question-lg"></i> Help</button></div>
         </div>
     </div>
 
@@ -520,45 +328,19 @@
     <div id="users-tab" class="tab-content" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3><i class="bi bi-people"></i> User Management</h3>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                <i class="bi bi-person-plus"></i> Add User
-            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="bi bi-person-plus"></i> Add User</button>
         </div>
-        
-        <div class="table-custom">
-            <table class="table table-dark table-hover mb-0">
-                <thead>
-                    <tr style="border-bottom: 1px solid var(--border-color);">
-                        <th>Username</th>
-                        <th>Role</th>
-                        <th>Storage Used</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead><tr><th>Username</th><th>Role</th><th>Storage Used</th><th>Status</th><th>Actions</th></tr></thead>
                 <tbody>
                     {% for user in users %}
                     <tr>
-                        <td>
-                            <i class="bi bi-person-circle me-2"></i>
-                            {{ user.username }}
-                        </td>
-                        <td>
-                            {% if user.username == 'Antrax' or user.role == 'admin' %}
-                            <span class="badge bg-danger">Admin</span>
-                            {% else %}
-                            <span class="badge bg-secondary">User</span>
-                            {% endif %}
-                        </td>
+                        <td><i class="bi bi-person-circle me-2"></i>{{ user.username }}</td>
+                        <td>{% if user.username == 'Antrax' or user.role == 'admin' %}<span class="badge bg-danger">Admin</span>{% else %}<span class="badge bg-secondary">User</span>{% endif %}</td>
                         <td>{{ user.storage_used|default('0 B') }}</td>
                         <td><span class="badge bg-success">Active</span></td>
-                        <td>
-                            {% if user.username != 'Antrax' %}
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('{{ user.username }}')">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            {% endif %}
-                        </td>
+                        <td>{% if user.username != 'Antrax' %}<button class="btn btn-sm btn-outline-danger" onclick="deleteUser('{{ user.username }}')"><i class="bi bi-trash"></i></button>{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -570,23 +352,11 @@
     <div id="servers-tab" class="tab-content" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3><i class="bi bi-hdd-stack"></i> Server Management</h3>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServerModal">
-                <i class="bi bi-plus-circle"></i> Add Server
-            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServerModal"><i class="bi bi-plus-circle"></i> Add Server</button>
         </div>
-        
-        <div class="table-custom">
-            <table class="table table-dark table-hover mb-0">
-                <thead>
-                    <tr style="border-bottom: 1px solid var(--border-color);">
-                        <th>Server Name</th>
-                        <th>Owner</th>
-                        <th>RAM</th>
-                        <th>CPU</th>
-                        <th>Disk</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead><tr><th>Server Name</th><th>Owner</th><th>RAM</th><th>CPU</th><th>Disk</th><th>Actions</th></tr></thead>
                 <tbody>
                     {% for server in servers %}
                     <tr>
@@ -595,16 +365,10 @@
                         <td>{{ server.ram }} MB</td>
                         <td>{{ server.cpu }}%</td>
                         <td>{{ server.disk }} MB</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteServer('{{ server.name }}', '{{ server.owner }}')">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteServer('{{ server.name }}', '{{ server.owner }}')"><i class="bi bi-trash"></i></button></td>
                     </tr>
                     {% else %}
-                    <tr>
-                        <td colspan="6" class="text-center text-secondary">No servers found</td>
-                    </tr>
+                    <tr><td colspan="6" class="text-center text-secondary">No servers found</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -614,303 +378,144 @@
     <!-- Settings Tab -->
     <div id="settings-tab" class="tab-content" style="display: none;">
         <h3 class="mb-4"><i class="bi bi-gear"></i> System Settings</h3>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="stat-card">
-                    <form method="POST" action="{{ url_for('admin_settings') }}">
-                        <div class="mb-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="registrationSwitch" name="registration_enabled" {% if registration_enabled %}checked{% endif %}>
-                                <label class="form-check-label" for="registrationSwitch">
-                                    <strong>Registration Enabled</strong>
-                                    <p class="text-secondary mb-0 small">Allow new users to create accounts</p>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="splitterSwitch" name="splitter_enabled" {% if splitter_enabled %}checked{% endif %}>
-                                <label class="form-check-label" for="splitterSwitch">
-                                    <strong>Server Splitting Enabled</strong>
-                                    <p class="text-secondary mb-0 small">Allow users to split server resources</p>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
-                    </form>
-                </div>
+        <div class="row"><div class="col-md-6">
+            <div class="stat-card">
+                <form method="POST">
+                    <div class="mb-4"><div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="registrationSwitch" name="registration_enabled" {% if registration_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="registrationSwitch"><strong>Registration Enabled</strong><p class="text-secondary mb-0 small">Allow new users to create accounts</p></label>
+                    </div></div>
+                    <div class="mb-4"><div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="splitterSwitch" name="splitter_enabled" {% if splitter_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="splitterSwitch"><strong>Server Splitting Enabled</strong><p class="text-secondary mb-0 small">Allow users to split server resources</p></label>
+                    </div></div>
+                    <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
+                </form>
             </div>
-        </div>
+        </div></div>
     </div>
 </div>
 
 <!-- Add User Modal -->
 <div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title">Add New User</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input type="text" class="form-control" id="newUsername" placeholder="Enter username">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" id="newPassword" placeholder="Enter password">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Role</label>
-                    <select class="form-select" id="newRole">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer border-secondary">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" onclick="addUser()">Add User</button>
-            </div>
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header border-secondary"><h5 class="modal-title">Add New User</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Username</label><input type="text" class="form-control" id="newUsername" placeholder="Enter username"></div>
+            <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" id="newPassword" placeholder="Enter password"></div>
         </div>
-    </div>
+        <div class="modal-footer border-secondary"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="addUser()">Add User</button></div>
+    </div></div>
 </div>
 
 <!-- Add Server Modal -->
 <div class="modal fade" id="addServerModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title">Add New Server</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Server Name</label>
-                    <input type="text" class="form-control" id="serverName" placeholder="Enter server name">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Owner</label>
-                    <input type="text" class="form-control" id="serverOwner" placeholder="Owner username">
-                </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">RAM (MB)</label>
-                        <input type="number" class="form-control" id="serverRam" value="1024" min="1">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">CPU (%)</label>
-                        <input type="number" class="form-control" id="serverCpu" value="50" min="1">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Disk (MB)</label>
-                        <input type="number" class="form-control" id="serverDisk" value="10240" min="1">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-secondary">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" onclick="addServer()">Add Server</button>
-            </div>
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header border-secondary"><h5 class="modal-title">Add New Server</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Server Name</label><input type="text" class="form-control" id="serverName" placeholder="Enter server name"></div>
+            <div class="mb-3"><label class="form-label">Owner</label><input type="text" class="form-control" id="serverOwner" placeholder="Owner username"></div>
+            <div class="row"><div class="col-md-4 mb-3"><label class="form-label">RAM (MB)</label><input type="number" class="form-control" id="serverRam" value="1024" min="1"></div>
+            <div class="col-md-4 mb-3"><label class="form-label">CPU (%)</label><input type="number" class="form-control" id="serverCpu" value="50" min="1"></div>
+            <div class="col-md-4 mb-3"><label class="form-label">Disk (MB)</label><input type="number" class="form-control" id="serverDisk" value="10240" min="1"></div></div>
         </div>
-    </div>
+        <div class="modal-footer border-secondary"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="addServer()">Add Server</button></div>
+    </div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // ==================== TERMINAL ====================
-    let term;
-    let fitAddon;
+    let term, fitAddon;
     
     function initTerminal() {
         const terminalElement = document.getElementById('terminal');
         if (!terminalElement) return;
-        
-        term = new Terminal({
-            cursorBlink: true,
-            theme: {
-                background: '#0a0a0a',
-                foreground: '#00ff00'
-            },
-            fontSize: 14,
-            fontFamily: 'monospace'
-        });
+        term = new Terminal({ cursorBlink: true, theme: { background: '#0a0a0a', foreground: '#00ff00' }, fontSize: 14, fontFamily: 'monospace' });
         fitAddon = new FitAddon.FitAddon();
         term.loadAddon(fitAddon);
         term.open(terminalElement);
         fitAddon.fit();
-        
         term.writeln('\x1b[1;32m═══════════════════════════════════════════\x1b[0m');
         term.writeln('\x1b[1;33m  TESSL Root Terminal v1.0\x1b[0m');
         term.writeln('\x1b[1;32m═══════════════════════════════════════════\x1b[0m');
         term.writeln('');
         term.write('\x1b[1;36madmin@tessl:~$\x1b[0m ');
-        
         let currentInput = '';
-        
         term.onKey(async (e) => {
             const char = e.key;
             const code = e.domEvent.keyCode;
-            
-            if (code === 13) { // Enter
-                term.writeln('');
-                await executeCommand(currentInput);
-                term.write('\x1b[1;36madmin@tessl:~$\x1b[0m ');
-                currentInput = '';
-            } else if (code === 8) { // Backspace
-                if (currentInput.length > 0) {
-                    currentInput = currentInput.slice(0, -1);
-                    term.write('\b \b');
-                }
-            } else {
-                currentInput += char;
-                term.write(char);
-            }
+            if (code === 13) { term.writeln(''); await executeCommand(currentInput); term.write('\x1b[1;36madmin@tessl:~$\x1b[0m '); currentInput = ''; }
+            else if (code === 8) { if (currentInput.length > 0) { currentInput = currentInput.slice(0, -1); term.write('\b \b'); } }
+            else { currentInput += char; term.write(char); }
         });
     }
     
     async function executeCommand(cmd) {
         cmd = cmd.trim();
-        
-        // Built-in commands
-        if (cmd === 'clear') {
-            term.clear();
-            return;
-        } else if (cmd === 'help') {
-            term.writeln('Available commands:');
-            term.writeln('  ls, cd, pwd, mkdir, rm, cat, echo');
-            term.writeln('  python, python3, pip, apt-get');
-            term.writeln('  clear, help, whoami');
-            return;
-        } else if (cmd === 'whoami') {
-            term.writeln('root');
-            return;
-        } else if (cmd.startsWith('echo ')) {
-            term.writeln(cmd.substring(5));
-            return;
-        }
-        
-        // Send to backend
+        if (cmd === 'clear') { term.clear(); return; }
+        if (cmd === 'help') { term.writeln('Available: ls, cd, pwd, mkdir, rm, cat, echo, python, clear, whoami'); return; }
+        if (cmd === 'whoami') { term.writeln('root'); return; }
+        if (cmd.startsWith('echo ')) { term.writeln(cmd.substring(5)); return; }
         try {
-            const response = await fetch('/api/terminal/execute', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: cmd })
-            });
+            const response = await fetch('/api/terminal/execute', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ command: cmd }) });
             const data = await response.json();
-            if (data.error) {
-                term.writeln('\x1b[1;31mError: ' + data.error + '\x1b[0m');
-            } else {
-                term.writeln(data.output);
-            }
-        } catch (error) {
-            term.writeln('\x1b[1;31mError: ' + error.message + '\x1b[0m');
-        }
+            if (data.error) term.writeln('\x1b[1;31mError: ' + data.error + '\x1b[0m');
+            else term.writeln(data.output);
+        } catch (error) { term.writeln('\x1b[1;31mError: ' + error.message + '\x1b[0m'); }
     }
     
-    function clearTerminal() {
-        if (term) term.clear();
-    }
-    
-    function runTestCommand() {
-        if (term) {
-            term.writeln('');
-            term.writeln('>>> print("Hello from TESSL!")');
-            term.writeln('Hello from TESSL!');
-        }
-    }
-    
-    function showHelp() {
-        if (term) {
-            term.writeln('');
-            term.writeln('TESSL Terminal Help:');
-            term.writeln('  • Use standard Linux commands');
-            term.writeln('  • Python 3.11 available');
-            term.writeln('  • Type "help" for command list');
-        }
-    }
+    function clearTerminal() { if (term) term.clear(); }
+    function runTestCommand() { if (term) { term.writeln(''); term.writeln('>>> print("Hello from TESSL!")'); term.writeln('Hello from TESSL!'); } }
+    function showHelp() { if (term) { term.writeln(''); term.writeln('TESSL Terminal Help: Use standard Linux commands. Type "help" for list.'); } }
     
     // ==================== SYSTEM STATS ====================
     async function loadSystemStats() {
         try {
             const response = await fetch('/api/system/stats');
             const stats = await response.json();
-            
             document.getElementById('ram-used-text').textContent = `${stats.ram_used} / ${stats.ram_total}`;
             document.getElementById('ram-bar').style.width = `${stats.ram_percent}%`;
-            
             document.getElementById('cpu-used-text').textContent = `${stats.cpu}%`;
             document.getElementById('cpu-bar').style.width = `${stats.cpu}%`;
-            
             document.getElementById('disk-used-text').textContent = `${stats.disk_used} / ${stats.disk_total}`;
             document.getElementById('disk-bar').style.width = `${stats.disk_percent}%`;
-        } catch (error) {
-            console.error('Error loading stats:', error);
-        }
+        } catch (error) { console.error('Error loading stats:', error); }
     }
     
     // ==================== USER MANAGEMENT ====================
     async function addUser() {
         const username = document.getElementById('newUsername').value;
         const password = document.getElementById('newPassword').value;
-        const role = document.getElementById('newRole').value;
-        
-        if (!username || !password) {
-            alert('Please fill in all fields');
-            return;
-        }
-        
-        try {
-            const response = await fetch('/api/admin/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password, role })
-            });
-            const data = await response.json();
-            if (data.success) {
-                location.reload();
-            } else {
-                alert(data.error);
-            }
-        } catch (error) {
-            alert('Error adding user: ' + error.message);
-        }
+        if (!username || !password) { alert('Please fill in all fields'); return; }
+        const formData = new FormData();
+        formData.append('new_username', username);
+        formData.append('new_password', password);
+        formData.append('create_user', 'true');
+        const response = await fetch('/admin', { method: 'POST', body: formData });
+        if (response.ok) location.reload();
+        else alert('Error creating user');
     }
     
     async function deleteUser(username) {
         if (!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
-        
-        try {
-            const response = await fetch('/api/admin/users', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username })
-            });
-            const data = await response.json();
-            if (data.success) {
-                location.reload();
-            } else {
-                alert(data.error);
-            }
-        } catch (error) {
-            alert('Error deleting user: ' + error.message);
-        }
+        const formData = new FormData();
+        formData.append('old_username', username);
+        formData.append('delete_user_from_modal', 'true');
+        const response = await fetch('/admin', { method: 'POST', body: formData });
+        if (response.ok) location.reload();
+        else alert('Error deleting user');
     }
     
+    // ==================== SERVER MANAGEMENT ====================
     async function addServer() {
-        const name = document.getElementById('serverName').value;
-        const owner = document.getElementById('serverOwner').value;
+        const name = document.getElementById('serverName').value.trim();
+        const owner = document.getElementById('serverOwner').value.trim();
         const ram = document.getElementById('serverRam').value;
         const cpu = document.getElementById('serverCpu').value;
         const disk = document.getElementById('serverDisk').value;
         
-        if (!name || !owner) {
-            alert('Please fill in all fields');
-            return;
-        }
+        if (!name || !owner) { alert('Please fill in Server Name and Owner'); return; }
         
         const formData = new FormData();
         formData.append('server_name', name);
@@ -920,42 +525,20 @@
         formData.append('server_disk', disk);
         formData.append('create_server', 'true');
         
-        try {
-            const response = await fetch('/admin', {
-                method: 'POST',
-                body: formData
-            });
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('Error creating server');
-            }
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
+        const response = await fetch('/admin', { method: 'POST', body: formData });
+        if (response.ok) location.reload();
+        else alert('Error creating server');
     }
     
     async function deleteServer(name, owner) {
         if (!confirm(`Delete server "${name}"?`)) return;
-        
         const formData = new FormData();
         formData.append('old_server_name', name);
         formData.append('old_owner', owner);
         formData.append('delete_server_from_modal', 'true');
-        
-        try {
-            const response = await fetch('/admin', {
-                method: 'POST',
-                body: formData
-            });
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('Error deleting server');
-            }
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
+        const response = await fetch('/admin', { method: 'POST', body: formData });
+        if (response.ok) location.reload();
+        else alert('Error deleting server');
     }
     
     // ==================== TAB SWITCHING ====================
@@ -963,18 +546,11 @@
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const tab = item.dataset.tab;
-            
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             item.classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
+            document.querySelectorAll('.tab-content').forEach(content => { content.style.display = 'none'; });
             document.getElementById(`${tab}-tab`).style.display = 'block';
-            
-            if (tab === 'terminal' && !term) {
-                setTimeout(initTerminal, 100);
-            }
+            if (tab === 'terminal' && !term) { setTimeout(initTerminal, 100); }
         });
     });
     
@@ -982,13 +558,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadSystemStats();
         setInterval(loadSystemStats, 5000);
-        
-        // Pre-load terminal
-        setTimeout(() => {
-            if (document.getElementById('terminal-tab').style.display !== 'block') {
-                initTerminal();
-            }
-        }, 500);
+        setTimeout(() => { if (document.getElementById('terminal-tab').style.display !== 'block') { initTerminal(); } }, 500);
     });
 </script>
 </body>
